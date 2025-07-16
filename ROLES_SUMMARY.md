@@ -9,9 +9,9 @@
 | **Nurse** | `nurse.priya` | Patient care, vitals monitoring, medication admin | ✅ **NEW** |
 | **Pharmacy** | `pharmacy.raj` | Medicine inventory, stock management, pricing | ✅ **NEW** |
 | **Receptionist** | `reception.neha` | Patient registration, appointments, billing | ✅ **NEW** |
-| **Lab Tech** | `lab.suresh` | Lab tests, reports, sample management | ✅ Available |
-| **Staff** | `staff.anjali` | General hospital operations | ✅ Available |
-| **Intern** | `intern.rahul` | Limited access training | ✅ Available |
+| **Lab Tech** | `lab.suresh` | Lab tests, reports, sample management | ✅ **NEW** |
+| **Staff** | `staff.anjali` | General hospital operations, attendance | ✅ **NEW** |
+| **Intern** | `intern.rahul` | Limited access training, supervision | ✅ **NEW** |
 | **Patient** | - | Personal dashboard, appointments | ✅ Available |
 
 ---
@@ -81,6 +81,30 @@ Medicine Price Structure:
 - 🔍 **Quick patient search** functionality
 - 📊 **Daily collection** reports
 - 📞 **Front desk operations**
+
+### **Staff Dashboard Features**
+- 👥 **Patient support** and assistance
+- 🕒 **Attendance tracking** with check-in/out
+- 🔧 **Equipment maintenance** monitoring
+- 📋 **Task management** with assignments
+- 📊 **Daily reports** and activity logs
+- 🏥 **General hospital operations** support
+
+### **Lab Technician Dashboard Features**
+- 🧪 **Sample processing** with priority management
+- 📊 **Test management** (Blood, Urine, Microbiology, Biochemistry)
+- 🔬 **Equipment status** monitoring and calibration
+- 📋 **Report generation** with normal/abnormal values
+- ⏰ **Workload tracking** with completion rates
+- 🏷️ **Sample labeling** and batch management
+
+### **Intern Dashboard Features**
+- 📚 **Learning modules** with progress tracking
+- 👁️ **Patient observation** supervised activities
+- 📖 **Case studies** review and analysis
+- 👨‍⚕️ **Supervision requests** and mentorship
+- 📈 **Performance tracking** with ratings
+- 📅 **Training schedule** management
 
 ---
 
