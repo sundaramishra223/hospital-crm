@@ -7,8 +7,14 @@ if ($_SESSION['user_role'] !== 'admin') {
 
 // Get dashboard statistics
 $stats = getAdminStats();
+$advanced_stats = getAdvancedStats();
+$system_health = getSystemHealth();
 $departments = getDepartments();
 $recent_activities = getRecentActivities(10);
+$hospitals = getHospitals();
+$feedbacks = getFeedbacks(5);
+$home_visits = getHomeVisitRequests();
+$video_consultations = getVideoConsultations();
 ?>
 
 <div class="admin-dashboard">

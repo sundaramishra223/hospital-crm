@@ -272,4 +272,318 @@ function uploadFile($file, $folder = 'uploads/') {
     
     return false;
 }
+
+// Get recent activities for admin dashboard
+function getRecentActivities($limit = 10) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT al.*, u.name as user_name FROM activity_logs al 
+                          JOIN users u ON al.user_id = u.id 
+                          ORDER BY al.created_at DESC LIMIT ?");
+    $stmt->execute([$limit]);
+    return $stmt->fetchAll();
+}
+
+// Get activity icon based on action
+function getActivityIcon($action) {
+    $icons = [
+        'login' => 'sign-in',
+        'logout' => 'sign-out',
+        'add' => 'plus',
+        'edit' => 'edit',
+        'delete' => 'trash',
+        'view' => 'eye',
+        'payment' => 'money',
+        'appointment' => 'calendar',
+        'prescription' => 'file-text'
+    ];
+    
+    return $icons[$action] ?? 'info';
+}
+
+// Chart data functions
+function getRevenueChartLabels($days = 30) {
+    $labels = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $labels[] = date('M d', strtotime("-$i days"));
+    }
+    return $labels;
+}
+
+function getRevenueChartData($days = 30) {
+    global $pdo;
+    
+    $data = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $date = date('Y-m-d', strtotime("-$i days"));
+        $stmt = $pdo->prepare("SELECT SUM(total_amount) as revenue FROM bills WHERE DATE(created_at) = ?");
+        $stmt->execute([$date]);
+        $result = $stmt->fetch();
+        $data[] = $result['revenue'] ?? 0;
+    }
+    return $data;
+}
+
+// Multi-hospital system functions
+function getHospitals() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM hospitals WHERE status = 'active' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function addHospital($data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO hospitals (name, address, phone, email, license_number, established_date, type, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())");
+    return $stmt->execute([
+        $data['name'],
+        $data['address'],
+        $data['phone'],
+        $data['email'],
+        $data['license_number'],
+        $data['established_date'],
+        $data['type']
+    ]);
+}
+
+// Role management functions
+function getRoles() {
+    return [
+        'admin' => 'Administrator',
+        'doctor' => 'Doctor',
+        'nurse' => 'Nurse',
+        'staff' => 'Staff',
+        'pharmacy' => 'Pharmacy',
+        'lab_tech' => 'Lab Technician',
+        'receptionist' => 'Receptionist',
+        'patient' => 'Patient',
+        'intern' => 'Intern'
+    ];
+}
+
+function enableRole($role) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO role_permissions (role, module, status, created_at) VALUES (?, 'system', 'active', NOW()) ON DUPLICATE KEY UPDATE status = 'active'");
+    return $stmt->execute([$role]);
+}
+
+function disableRole($role) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE role_permissions SET status = 'inactive' WHERE role = ?");
+    return $stmt->execute([$role]);
+}
+
+// Equipment management functions
+function getEquipments() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM equipments WHERE status != 'deleted' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function addEquipment($data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO equipments (name, model, serial_number, purchase_date, cost, department_id, maintenance_schedule, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())");
+    return $stmt->execute([
+        $data['name'],
+        $data['model'],
+        $data['serial_number'],
+        $data['purchase_date'],
+        $data['cost'],
+        $data['department_id'],
+        $data['maintenance_schedule']
+    ]);
+}
+
+// Insurance management functions
+function getInsuranceProviders() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM insurance_providers WHERE status = 'active' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function addInsuranceProvider($data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO insurance_providers (name, contact_person, phone, email, address, coverage_details, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())");
+    return $stmt->execute([
+        $data['name'],
+        $data['contact_person'],
+        $data['phone'],
+        $data['email'],
+        $data['address'],
+        $data['coverage_details']
+    ]);
+}
+
+// Attendance system functions
+function markAttendance($user_id, $type = 'check_in') {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO attendance (user_id, date, check_in, status, created_at) VALUES (?, CURDATE(), NOW(), 'present', NOW()) ON DUPLICATE KEY UPDATE check_out = IF(? = 'check_out', NOW(), check_out)");
+    return $stmt->execute([$user_id, $type]);
+}
+
+function getAttendanceReport($date_from, $date_to) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT a.*, u.name, u.role FROM attendance a JOIN users u ON a.user_id = u.id WHERE a.date BETWEEN ? AND ? ORDER BY a.date DESC, u.name");
+    $stmt->execute([$date_from, $date_to]);
+    return $stmt->fetchAll();
+}
+
+// Feedback management functions
+function getFeedbacks($limit = 50) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT f.*, p.first_name, p.last_name, d.first_name as doctor_fname, d.last_name as doctor_lname FROM feedbacks f 
+                          LEFT JOIN patients p ON f.patient_id = p.id 
+                          LEFT JOIN doctors d ON f.doctor_id = d.id 
+                          ORDER BY f.created_at DESC LIMIT ?");
+    $stmt->execute([$limit]);
+    return $stmt->fetchAll();
+}
+
+// Salary management functions
+function getSalarySlips($month = null, $year = null) {
+    global $pdo;
+    
+    $month = $month ?? date('m');
+    $year = $year ?? date('Y');
+    
+    $stmt = $pdo->prepare("SELECT s.*, u.name, u.role, d.name as department_name FROM salary_slips s 
+                          JOIN users u ON s.user_id = u.id 
+                          LEFT JOIN departments d ON u.department_id = d.id 
+                          WHERE s.month = ? AND s.year = ? 
+                          ORDER BY u.name");
+    $stmt->execute([$month, $year]);
+    return $stmt->fetchAll();
+}
+
+function generateSalarySlip($user_id, $month, $year, $data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO salary_slips (user_id, month, year, basic_salary, allowances, deductions, gross_salary, net_salary, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'generated', NOW())");
+    return $stmt->execute([
+        $user_id,
+        $month,
+        $year,
+        $data['basic_salary'],
+        $data['allowances'],
+        $data['deductions'],
+        $data['gross_salary'],
+        $data['net_salary']
+    ]);
+}
+
+// Home visit and video consultation functions
+function getHomeVisitRequests() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT hv.*, p.first_name, p.last_name, p.contact, d.first_name as doctor_fname, d.last_name as doctor_lname FROM home_visits hv 
+                        JOIN patients p ON hv.patient_id = p.id 
+                        LEFT JOIN doctors d ON hv.doctor_id = d.id 
+                        ORDER BY hv.visit_date DESC");
+    return $stmt->fetchAll();
+}
+
+function getVideoConsultations() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT vc.*, p.first_name, p.last_name, d.first_name as doctor_fname, d.last_name as doctor_lname FROM video_consultations vc 
+                        JOIN patients p ON vc.patient_id = p.id 
+                        JOIN doctors d ON vc.doctor_id = d.id 
+                        ORDER BY vc.consultation_date DESC");
+    return $stmt->fetchAll();
+}
+
+// Advanced stats for admin dashboard
+function getAdvancedStats() {
+    global $pdo;
+    
+    $stats = [];
+    
+    // Today's stats
+    $today = date('Y-m-d');
+    
+    // New patients today
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM patients WHERE DATE(created_at) = ?");
+    $stmt->execute([$today]);
+    $stats['new_patients_today'] = $stmt->fetch()['count'];
+    
+    // Emergency cases today
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM patients WHERE visit_reason LIKE '%emergency%' AND DATE(created_at) = ?");
+    $stmt->execute([$today]);
+    $stats['emergency_cases_today'] = $stmt->fetch()['count'];
+    
+    // Surgeries today
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM surgeries WHERE DATE(surgery_date) = ?");
+    $stmt->execute([$today]);
+    $stats['surgeries_today'] = $stmt->fetch()['count'];
+    
+    // Lab tests pending
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM lab_tests WHERE status = 'pending'");
+    $stats['pending_tests'] = $stmt->fetch()['count'];
+    
+    // Pharmacy stock alerts
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM medicines WHERE quantity <= minimum_stock");
+    $stats['stock_alerts'] = $stmt->fetch()['count'];
+    
+    // Monthly comparisons
+    $current_month = date('Y-m');
+    $last_month = date('Y-m', strtotime('-1 month'));
+    
+    // Revenue comparison
+    $stmt = $pdo->prepare("SELECT SUM(total_amount) as revenue FROM bills WHERE DATE_FORMAT(created_at, '%Y-%m') = ?");
+    $stmt->execute([$current_month]);
+    $stats['current_month_revenue'] = $stmt->fetch()['revenue'] ?? 0;
+    
+    $stmt->execute([$last_month]);
+    $stats['last_month_revenue'] = $stmt->fetch()['revenue'] ?? 0;
+    
+    // Patient growth
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM patients WHERE DATE_FORMAT(created_at, '%Y-%m') = ?");
+    $stmt->execute([$current_month]);
+    $stats['current_month_patients'] = $stmt->fetch()['count'];
+    
+    $stmt->execute([$last_month]);
+    $stats['last_month_patients'] = $stmt->fetch()['count'];
+    
+    return $stats;
+}
+
+// System health check
+function getSystemHealth() {
+    global $pdo;
+    
+    $health = [];
+    
+    // Database connection
+    try {
+        $pdo->query("SELECT 1");
+        $health['database'] = 'healthy';
+    } catch (Exception $e) {
+        $health['database'] = 'error';
+    }
+    
+    // Disk space
+    $free_space = disk_free_space('.');
+    $total_space = disk_total_space('.');
+    $health['disk_usage'] = round((($total_space - $free_space) / $total_space) * 100, 2);
+    
+    // Log file sizes
+    $log_files = glob('logs/*.log');
+    $total_log_size = 0;
+    foreach ($log_files as $file) {
+        $total_log_size += filesize($file);
+    }
+    $health['log_size'] = round($total_log_size / (1024 * 1024), 2); // MB
+    
+    return $health;
+}
 ?>
