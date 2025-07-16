@@ -14,6 +14,13 @@ function getMenuItems($role) {
         'roles' => ['admin', 'doctor', 'nurse', 'staff', 'pharmacy', 'lab_tech', 'receptionist', 'patient', 'intern']
     ];
     
+    $menu[] = [
+        'title' => 'My Profile',
+        'icon' => 'fa-user-circle',
+        'url' => 'modules/profile.php',
+        'roles' => ['admin', 'doctor', 'nurse', 'staff', 'pharmacy', 'lab_tech', 'receptionist', 'patient', 'intern']
+    ];
+    
     // Admin specific menu
     if ($role == 'admin') {
         $menu[] = [
