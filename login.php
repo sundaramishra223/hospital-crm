@@ -76,6 +76,7 @@ if ($_POST) {
                         <option value="pharmacy">Pharmacy</option>
                         <option value="lab_tech">Lab Technician</option>
                         <option value="receptionist">Receptionist</option>
+                        <option value="intern">Intern</option>
                     </select>
                 </div>
                 

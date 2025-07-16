@@ -65,6 +65,9 @@ $user_details = getUserDetails($user_id);
             case 'receptionist':
                 include 'dashboards/receptionist.php';
                 break;
+            case 'intern':
+                include 'dashboards/intern.php';
+                break;
             default:
                 echo '<div class="alert alert-danger">Invalid user role</div>';
         }
