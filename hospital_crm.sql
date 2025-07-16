@@ -560,6 +560,15 @@ INSERT INTO `users` (`username`, `password`, `role`, `name`, `email`, `phone`, `
 INSERT INTO `doctors` (`user_id`, `first_name`, `last_name`, `education`, `experience`, `department_id`, `status`) VALUES
 (2, 'Dr. Rajesh', 'Sharma', 'MBBS, MD Cardiology', '15 years experience in cardiology', 1, 'active');
 
+-- Insert Sample Staff Users (Nurse, Pharmacy, Receptionist)
+INSERT INTO `users` (`username`, `password`, `role`, `name`, `email`, `phone`, `status`) VALUES
+('nurse.priya', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'nurse', 'Priya Sharma (Nurse)', 'nurse.priya@hospital.com', '+91-9876543211', 'active'),
+('pharmacy.raj', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'pharmacy', 'Raj Kumar (Pharmacist)', 'pharmacy.raj@hospital.com', '+91-9876543212', 'active'),
+('reception.neha', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'receptionist', 'Neha Gupta (Receptionist)', 'reception.neha@hospital.com', '+91-9876543213', 'active'),
+('lab.suresh', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lab_tech', 'Suresh Kumar (Lab Tech)', 'lab.suresh@hospital.com', '+91-9876543214', 'active'),
+('staff.anjali', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'staff', 'Anjali Singh (Staff)', 'staff.anjali@hospital.com', '+91-9876543215', 'active'),
+('intern.rahul', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'intern', 'Rahul Verma (Intern)', 'intern.rahul@hospital.com', '+91-9876543216', 'active');
+
 -- Insert Sample Insurance Providers
 INSERT INTO `insurance_providers` (`name`, `contact_person`, `phone`, `email`, `coverage_details`, `status`) VALUES
 ('HDFC ERGO Health Insurance', 'Rajesh Kumar', '+91-9876543220', 'support@hdfcergo.com', 'Comprehensive health coverage up to 10 lakhs', 'active'),
@@ -583,14 +592,25 @@ INSERT INTO `currencies` (`code`, `name`, `symbol`, `status`) VALUES
 -- Insert Settings
 INSERT INTO `settings` (`setting_key`, `value`, `description`) VALUES
 ('site_title', 'Hospital CRM', 'Website title'),
+('hospital_name', 'City General Hospital', 'Hospital name'),
 ('logo', 'assets/images/logo.png', 'Hospital logo path'),
 ('favicon', 'assets/images/favicon.ico', 'Website favicon'),
 ('theme_color', '#007bff', 'Primary theme color'),
 ('theme_mode', 'light', 'Theme mode (light/dark)'),
 ('hospital_address', 'City General Hospital, 123 Main Street', 'Hospital address'),
 ('hospital_phone', '+91-9876543210', 'Hospital phone number'),
+('hospital_email', 'admin@hospital.com', 'Hospital email'),
 ('system_version', '1.0.0', 'System version'),
-('last_backup', 'Never', 'Last backup date');
+('last_backup', 'Never', 'Last backup date'),
+('currency_symbol', '₹', 'Currency symbol'),
+('default_currency', 'INR', 'Default currency code'),
+('enable_departments', '1', 'Enable department management'),
+('enable_insurance', '1', 'Enable insurance management'),
+('allow_online_payments', '1', 'Allow online payment methods'),
+('pharmacy_auto_deduct', '1', 'Auto deduct medicine stock on prescription'),
+('appointment_slot_duration', '30', 'Appointment slot duration in minutes'),
+('patient_id_prefix', 'PID', 'Patient ID prefix'),
+('bill_number_prefix', 'INV', 'Bill number prefix');
 
 -- Insert Services
 INSERT INTO `services` (`name`, `category`, `price`, `duration`, `description`, `department_id`, `status`) VALUES
