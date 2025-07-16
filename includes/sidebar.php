@@ -80,7 +80,7 @@ function getMenuItems($role) {
                 ['title' => 'Insurance Management', 'url' => 'modules/insurance.php', 'icon' => 'fa-shield'],
                 ['title' => 'Payment Methods', 'url' => 'modules/payment-methods.php', 'icon' => 'fa-credit-card'],
                 ['title' => 'Insurance Claims', 'url' => 'modules/insurance.php', 'icon' => 'fa-shield'],
-                ['title' => 'Salary Management', 'url' => 'modules/salary.php', 'icon' => 'fa-money'],
+                ['title' => 'Salary Management', 'url' => 'modules/salary.php', 'icon' => 'fa-money-check-alt'],
                 ['title' => 'Financial Reports', 'url' => 'modules/financial-reports.php', 'icon' => 'fa-chart-line']
             ]
         ];
@@ -90,7 +90,7 @@ function getMenuItems($role) {
             'icon' => 'fa-cogs',
             'submenu' => [
                 ['title' => 'System Settings', 'url' => 'modules/system-settings.php', 'icon' => 'fa-wrench'],
-                ['title' => 'Attendance System', 'url' => 'modules/attendance.php', 'icon' => 'fa-clock-o'],
+                ['title' => 'Attendance Management', 'url' => 'modules/attendance.php', 'icon' => 'fa-clock'],
                 ['title' => 'Shift Management', 'url' => 'modules/shifts.php', 'icon' => 'fa-calendar-check-o'],
                 ['title' => 'Communication', 'url' => 'modules/communication.php', 'icon' => 'fa-envelope'],
                 ['title' => 'Feedback Management', 'url' => 'modules/feedback.php', 'icon' => 'fa-comment'],
