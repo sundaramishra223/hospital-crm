@@ -287,36 +287,7 @@ function getPatients($type = 'all') {
 function addPatient($data) {
     global $pdo;
     
-    $stmt = $pdo->prepare("INSERT INTO patients (first_name, middle_name, last_name, date_of_birth, gender, contact, email, address, emergency_contact, visit_reason, attendant_details, patient_type, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())");
-    
-    return $stmt->execute([
-        $data['first_name'],
-        $data['middle_name'],
-        $data['last_name'],
-        $data['date_of_birth'],
-        $data['gender'],
-        $data['contact'],
-        $data['email'],
-        $data['address'],
-        $data['emergency_contact'],
-        $data['visit_reason'],
-        $data['attendant_details'],
-        $data['patient_type'] ?? 'outpatient'
-    ]);
-}
-
-function getPatientById($patient_id) {
-    global $pdo;
-    
-    $stmt = $pdo->prepare("SELECT * FROM patients WHERE id = ?");
-    $stmt->execute([$patient_id]);
-    return $stmt->fetch();
-}
-
-function updatePatient($patient_id, $data) {
-    global $pdo;
-    
-    $stmt = $pdo->prepare("UPDATE patients SET first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, gender = ?, contact = ?, email = ?, address = ?, emergency_contact = ?, visit_reason = ?, attendant_details = ?, patient_type = ? WHERE id = ?");
+    $stmt = $pdo->prepare("INSERT INTO patients (first_name, middle_name, last_name, date_of_birth, gender, contact, email, address, emergency_contact, visit_reason, attendant_details, patient_type, insurance_provider_id, insurance_policy_number, insurance_coverage_amount, insurance_status, insurance_expiry_date, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())");
     
     return $stmt->execute([
         $data['first_name'],
@@ -331,6 +302,47 @@ function updatePatient($patient_id, $data) {
         $data['visit_reason'],
         $data['attendant_details'],
         $data['patient_type'] ?? 'outpatient',
+        $data['insurance_provider_id'] ?: null,
+        $data['insurance_policy_number'] ?: null,
+        $data['insurance_coverage_amount'] ?: null,
+        $data['insurance_status'] ?? 'none',
+        $data['insurance_expiry_date'] ?: null
+    ]);
+}
+
+function getPatientById($patient_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT p.*, ip.name as insurance_provider_name FROM patients p 
+                          LEFT JOIN insurance_providers ip ON p.insurance_provider_id = ip.id 
+                          WHERE p.id = ?");
+    $stmt->execute([$patient_id]);
+    return $stmt->fetch();
+}
+
+function updatePatient($patient_id, $data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE patients SET first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, gender = ?, contact = ?, email = ?, address = ?, emergency_contact = ?, visit_reason = ?, attendant_details = ?, patient_type = ?, insurance_provider_id = ?, insurance_policy_number = ?, insurance_coverage_amount = ?, insurance_status = ?, insurance_expiry_date = ? WHERE id = ?");
+    
+    return $stmt->execute([
+        $data['first_name'],
+        $data['middle_name'],
+        $data['last_name'],
+        $data['date_of_birth'],
+        $data['gender'],
+        $data['contact'],
+        $data['email'],
+        $data['address'],
+        $data['emergency_contact'],
+        $data['visit_reason'],
+        $data['attendant_details'],
+        $data['patient_type'] ?? 'outpatient',
+        $data['insurance_provider_id'] ?: null,
+        $data['insurance_policy_number'] ?: null,
+        $data['insurance_coverage_amount'] ?: null,
+        $data['insurance_status'] ?? 'none',
+        $data['insurance_expiry_date'] ?: null,
         $patient_id
     ]);
 }
@@ -953,5 +965,106 @@ function formatCurrency($amount, $currency = 'INR') {
     
     $symbol = $symbols[$currency] ?? $currency;
     return $symbol . number_format($amount, 2);
+}
+
+// Insurance functions
+function getInsuranceProviders() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM insurance_providers WHERE status = 'active' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function getInsuranceProviderById($provider_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT * FROM insurance_providers WHERE id = ?");
+    $stmt->execute([$provider_id]);
+    return $stmt->fetch();
+}
+
+function addInsuranceProvider($data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("INSERT INTO insurance_providers (name, contact_person, phone, email, address, coverage_details, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())");
+    
+    return $stmt->execute([
+        $data['name'],
+        $data['contact_person'],
+        $data['phone'],
+        $data['email'],
+        $data['address'],
+        $data['coverage_details']
+    ]);
+}
+
+function updateInsuranceProvider($provider_id, $data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE insurance_providers SET name = ?, contact_person = ?, phone = ?, email = ?, address = ?, coverage_details = ? WHERE id = ?");
+    
+    return $stmt->execute([
+        $data['name'],
+        $data['contact_person'],
+        $data['phone'],
+        $data['email'],
+        $data['address'],
+        $data['coverage_details'],
+        $provider_id
+    ]);
+}
+
+function deleteInsuranceProvider($provider_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE insurance_providers SET status = 'inactive' WHERE id = ?");
+    return $stmt->execute([$provider_id]);
+}
+
+function getPatientsByInsurance($provider_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT p.*, ip.name as insurance_provider_name FROM patients p 
+                          JOIN insurance_providers ip ON p.insurance_provider_id = ip.id 
+                          WHERE p.insurance_provider_id = ? AND p.status != 'deleted'
+                          ORDER BY p.first_name, p.last_name");
+    $stmt->execute([$provider_id]);
+    return $stmt->fetchAll();
+}
+
+function checkInsuranceExpiry() {
+    global $pdo;
+    
+    // Get patients with insurance expiring in next 30 days
+    $stmt = $pdo->query("SELECT p.*, ip.name as insurance_provider_name FROM patients p 
+                        JOIN insurance_providers ip ON p.insurance_provider_id = ip.id 
+                        WHERE p.insurance_expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                        AND p.insurance_status = 'active'
+                        ORDER BY p.insurance_expiry_date");
+    return $stmt->fetchAll();
+}
+
+function getInsuranceStats() {
+    global $pdo;
+    
+    $stats = [];
+    
+    // Total insured patients
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM patients WHERE insurance_status = 'active'");
+    $stats['total_insured'] = $stmt->fetch()['count'];
+    
+    // Total uninsured patients
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM patients WHERE insurance_status = 'none'");
+    $stats['total_uninsured'] = $stmt->fetch()['count'];
+    
+    // Expired insurance
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM patients WHERE insurance_status = 'expired'");
+    $stats['expired_insurance'] = $stmt->fetch()['count'];
+    
+    // Total coverage amount
+    $stmt = $pdo->query("SELECT SUM(insurance_coverage_amount) as total FROM patients WHERE insurance_status = 'active'");
+    $stats['total_coverage'] = $stmt->fetch()['total'] ?? 0;
+    
+    return $stats;
 }
 ?>

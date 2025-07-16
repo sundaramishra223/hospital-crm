@@ -84,6 +84,8 @@ switch ($action) {
         }
         break;
 }
+
+$insurance_providers = getInsuranceProviders();
 ?>
 
 <!DOCTYPE html>
@@ -614,20 +616,76 @@ switch ($action) {
                             <textarea name="address" class="form-control" rows="2"><?php echo $patient['address'] ?? ''; ?></textarea>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Visit Reason *</label>
-                                    <textarea name="visit_reason" class="form-control" rows="3" required><?php echo $patient['visit_reason'] ?? ''; ?></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Attendant Details</label>
-                                    <textarea name="attendant_details" class="form-control" rows="3" placeholder="Name, relation, contact of attendant"><?php echo $patient['attendant_details'] ?? ''; ?></textarea>
-                                </div>
-                            </div>
-                        </div>
+                                                 <div class="row">
+                             <div class="col-md-6">
+                                 <div class="form-group">
+                                     <label>Visit Reason *</label>
+                                     <textarea name="visit_reason" class="form-control" rows="3" required><?php echo $patient['visit_reason'] ?? ''; ?></textarea>
+                                 </div>
+                             </div>
+                             <div class="col-md-6">
+                                 <div class="form-group">
+                                     <label>Attendant Details</label>
+                                     <textarea name="attendant_details" class="form-control" rows="3" placeholder="Name, relation, contact of attendant"><?php echo $patient['attendant_details'] ?? ''; ?></textarea>
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Insurance Information -->
+                         <div class="card mt-4">
+                             <div class="card-header">
+                                 <h6 class="mb-0">Insurance Information</h6>
+                             </div>
+                             <div class="card-body">
+                                 <div class="row">
+                                     <div class="col-md-6">
+                                         <div class="form-group">
+                                             <label>Insurance Provider</label>
+                                             <select name="insurance_provider_id" class="form-control">
+                                                 <option value="">No Insurance</option>
+                                                 <?php foreach ($insurance_providers as $provider): ?>
+                                                     <option value="<?php echo $provider['id']; ?>" <?php echo (isset($patient['insurance_provider_id']) && $patient['insurance_provider_id'] == $provider['id']) ? 'selected' : ''; ?>>
+                                                         <?php echo $provider['name']; ?>
+                                                     </option>
+                                                 <?php endforeach; ?>
+                                             </select>
+                                         </div>
+                                     </div>
+                                     <div class="col-md-6">
+                                         <div class="form-group">
+                                             <label>Policy Number</label>
+                                             <input type="text" name="insurance_policy_number" class="form-control" placeholder="Policy Number" value="<?php echo $patient['insurance_policy_number'] ?? ''; ?>">
+                                         </div>
+                                     </div>
+                                 </div>
+                                 
+                                 <div class="row">
+                                     <div class="col-md-4">
+                                         <div class="form-group">
+                                             <label>Coverage Amount</label>
+                                             <input type="number" name="insurance_coverage_amount" class="form-control" placeholder="Coverage Amount" step="0.01" value="<?php echo $patient['insurance_coverage_amount'] ?? ''; ?>">
+                                         </div>
+                                     </div>
+                                     <div class="col-md-4">
+                                         <div class="form-group">
+                                             <label>Insurance Status</label>
+                                             <select name="insurance_status" class="form-control">
+                                                 <option value="none" <?php echo (isset($patient['insurance_status']) && $patient['insurance_status'] == 'none') ? 'selected' : ''; ?>>No Insurance</option>
+                                                 <option value="active" <?php echo (isset($patient['insurance_status']) && $patient['insurance_status'] == 'active') ? 'selected' : ''; ?>>Active</option>
+                                                 <option value="expired" <?php echo (isset($patient['insurance_status']) && $patient['insurance_status'] == 'expired') ? 'selected' : ''; ?>>Expired</option>
+                                                 <option value="suspended" <?php echo (isset($patient['insurance_status']) && $patient['insurance_status'] == 'suspended') ? 'selected' : ''; ?>>Suspended</option>
+                                             </select>
+                                         </div>
+                                     </div>
+                                     <div class="col-md-4">
+                                         <div class="form-group">
+                                             <label>Expiry Date</label>
+                                             <input type="date" name="insurance_expiry_date" class="form-control" value="<?php echo $patient['insurance_expiry_date'] ?? ''; ?>">
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
                         
                         <div class="form-group">
                             <button type="submit" class="btn btn-success btn-lg">
@@ -672,12 +730,23 @@ switch ($action) {
                                     <div class="detail-label">Contact:</div>
                                     <div class="detail-value"><?php echo $patient['contact']; ?></div>
                                 </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Type:</div>
-                                    <div class="detail-value">
-                                        <span class="badge badge-info"><?php echo ucfirst($patient['patient_type'] ?? 'outpatient'); ?></span>
-                                    </div>
-                                </div>
+                                                                 <div class="detail-item">
+                                     <div class="detail-label">Type:</div>
+                                     <div class="detail-value">
+                                         <span class="badge badge-info"><?php echo ucfirst($patient['patient_type'] ?? 'outpatient'); ?></span>
+                                     </div>
+                                 </div>
+                                 <div class="detail-item">
+                                     <div class="detail-label">Insurance:</div>
+                                     <div class="detail-value">
+                                         <?php if ($patient['insurance_status'] == 'active'): ?>
+                                             <span class="badge badge-success">Insured</span>
+                                             <br><small><?php echo $patient['insurance_provider_name'] ?? 'N/A'; ?></small>
+                                         <?php else: ?>
+                                             <span class="badge badge-secondary">No Insurance</span>
+                                         <?php endif; ?>
+                                     </div>
+                                 </div>
                             </div>
                             
                             <div class="mt-3">
@@ -736,21 +805,54 @@ switch ($action) {
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="patient-details">
-                                                <h6>Visit Information</h6>
-                                                <div class="detail-item">
-                                                    <div class="detail-label">Visit Reason:</div>
-                                                    <div class="detail-value"><?php echo $patient['visit_reason']; ?></div>
-                                                </div>
-                                                <div class="detail-item">
-                                                    <div class="detail-label">Attendant Details:</div>
-                                                    <div class="detail-value"><?php echo $patient['attendant_details'] ?: 'None'; ?></div>
-                                                </div>
-                                                <div class="detail-item">
-                                                    <div class="detail-label">Registration Date:</div>
-                                                    <div class="detail-value"><?php echo date('M d, Y', strtotime($patient['created_at'])); ?></div>
-                                                </div>
-                                            </div>
+                                                                                 <div class="patient-details">
+                                         <h6>Visit Information</h6>
+                                         <div class="detail-item">
+                                             <div class="detail-label">Visit Reason:</div>
+                                             <div class="detail-value"><?php echo $patient['visit_reason']; ?></div>
+                                         </div>
+                                         <div class="detail-item">
+                                             <div class="detail-label">Attendant Details:</div>
+                                             <div class="detail-value"><?php echo $patient['attendant_details'] ?: 'None'; ?></div>
+                                         </div>
+                                         <div class="detail-item">
+                                             <div class="detail-label">Registration Date:</div>
+                                             <div class="detail-value"><?php echo date('M d, Y', strtotime($patient['created_at'])); ?></div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                             
+                             <!-- Insurance Details -->
+                             <?php if ($patient['insurance_status'] == 'active'): ?>
+                                 <div class="row mt-3">
+                                     <div class="col-md-12">
+                                         <div class="patient-details">
+                                             <h6>Insurance Information</h6>
+                                             <div class="row">
+                                                 <div class="col-md-6">
+                                                     <div class="detail-item">
+                                                         <div class="detail-label">Provider:</div>
+                                                         <div class="detail-value"><?php echo $patient['insurance_provider_name'] ?? 'N/A'; ?></div>
+                                                     </div>
+                                                     <div class="detail-item">
+                                                         <div class="detail-label">Policy Number:</div>
+                                                         <div class="detail-value"><?php echo $patient['insurance_policy_number'] ?? 'N/A'; ?></div>
+                                                     </div>
+                                                 </div>
+                                                 <div class="col-md-6">
+                                                     <div class="detail-item">
+                                                         <div class="detail-label">Coverage Amount:</div>
+                                                         <div class="detail-value"><?php echo $patient['insurance_coverage_amount'] ? formatCurrency($patient['insurance_coverage_amount']) : 'N/A'; ?></div>
+                                                     </div>
+                                                     <div class="detail-item">
+                                                         <div class="detail-label">Expiry Date:</div>
+                                                         <div class="detail-value"><?php echo $patient['insurance_expiry_date'] ? date('M d, Y', strtotime($patient['insurance_expiry_date'])) : 'N/A'; ?></div>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
                                         </div>
                                     </div>
                                 </div>

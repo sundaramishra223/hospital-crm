@@ -77,6 +77,7 @@ function getMenuItems($role) {
             'icon' => 'fa-money',
             'submenu' => [
                 ['title' => 'Billing & Invoices', 'url' => 'modules/billing.php', 'icon' => 'fa-file-text'],
+                ['title' => 'Insurance Management', 'url' => 'modules/insurance.php', 'icon' => 'fa-shield'],
                 ['title' => 'Payment Methods', 'url' => 'modules/payment-methods.php', 'icon' => 'fa-credit-card'],
                 ['title' => 'Insurance Claims', 'url' => 'modules/insurance.php', 'icon' => 'fa-shield'],
                 ['title' => 'Salary Management', 'url' => 'modules/salary.php', 'icon' => 'fa-money'],

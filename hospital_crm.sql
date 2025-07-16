@@ -111,11 +111,17 @@ CREATE TABLE `patients` (
   `visit_reason` text NOT NULL,
   `attendant_details` text DEFAULT NULL,
   `patient_type` enum('inpatient','outpatient') DEFAULT 'outpatient',
+  `insurance_provider_id` int(11) DEFAULT NULL,
+  `insurance_policy_number` varchar(100) DEFAULT NULL,
+  `insurance_coverage_amount` decimal(12,2) DEFAULT NULL,
+  `insurance_status` enum('active','expired','suspended','none') DEFAULT 'none',
+  `insurance_expiry_date` date DEFAULT NULL,
   `status` enum('active','discharged','deleted') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `patient_type` (`patient_type`),
-  KEY `status` (`status`)
+  KEY `status` (`status`),
+  KEY `insurance_provider_id` (`insurance_provider_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -554,10 +560,18 @@ INSERT INTO `users` (`username`, `password`, `role`, `name`, `email`, `phone`, `
 INSERT INTO `doctors` (`user_id`, `first_name`, `last_name`, `education`, `experience`, `department_id`, `status`) VALUES
 (2, 'Dr. Rajesh', 'Sharma', 'MBBS, MD Cardiology', '15 years experience in cardiology', 1, 'active');
 
+-- Insert Sample Insurance Providers
+INSERT INTO `insurance_providers` (`name`, `contact_person`, `phone`, `email`, `coverage_details`, `status`) VALUES
+('HDFC ERGO Health Insurance', 'Rajesh Kumar', '+91-9876543220', 'support@hdfcergo.com', 'Comprehensive health coverage up to 10 lakhs', 'active'),
+('ICICI Lombard Health Care', 'Priya Sharma', '+91-9876543221', 'care@icicilombard.com', 'Individual and family health plans', 'active'),
+('Star Health Insurance', 'Amit Verma', '+91-9876543222', 'help@starhealth.in', 'Senior citizen and critical illness coverage', 'active'),
+('National Insurance Company', 'Sunita Devi', '+91-9876543223', 'info@nationalinsurance.nic.co.in', 'Government health insurance schemes', 'active');
+
 -- Insert Sample Patient
-INSERT INTO `patients` (`first_name`, `last_name`, `date_of_birth`, `gender`, `contact`, `email`, `visit_reason`, `patient_type`, `status`) VALUES
-('John', 'Doe', '1985-06-15', 'male', '+91-9876543211', 'john.doe@email.com', 'Routine checkup', 'outpatient', 'active'),
-('Jane', 'Smith', '1990-03-22', 'female', '+91-9876543212', 'jane.smith@email.com', 'Chest pain consultation', 'outpatient', 'active');
+INSERT INTO `patients` (`first_name`, `last_name`, `date_of_birth`, `gender`, `contact`, `email`, `visit_reason`, `patient_type`, `insurance_provider_id`, `insurance_policy_number`, `insurance_coverage_amount`, `insurance_status`, `insurance_expiry_date`, `status`) VALUES
+('John', 'Doe', '1985-06-15', 'male', '+91-9876543211', 'john.doe@email.com', 'Routine checkup', 'outpatient', 1, 'HDFC001234567', 500000.00, 'active', '2025-06-15', 'active'),
+('Jane', 'Smith', '1990-03-22', 'female', '+91-9876543212', 'jane.smith@email.com', 'Chest pain consultation', 'outpatient', 2, 'ICICI987654321', 300000.00, 'active', '2025-03-22', 'active'),
+('Rajesh', 'Patel', '1975-12-10', 'male', '+91-9876543213', 'rajesh.patel@email.com', 'Diabetes management', 'outpatient', NULL, NULL, NULL, 'none', NULL, 'active');
 
 -- Insert Currencies
 INSERT INTO `currencies` (`code`, `name`, `symbol`, `status`) VALUES
@@ -629,6 +643,7 @@ ALTER TABLE `patient_vitals` ADD CONSTRAINT `vitals_patient_fk` FOREIGN KEY (`pa
 ALTER TABLE `patient_history` ADD CONSTRAINT `history_patient_fk` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 ALTER TABLE `appointments` ADD CONSTRAINT `appointments_patient_fk` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 ALTER TABLE `appointments` ADD CONSTRAINT `appointments_doctor_fk` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE;
+ALTER TABLE `patients` ADD CONSTRAINT `patients_insurance_fk` FOREIGN KEY (`insurance_provider_id`) REFERENCES `insurance_providers` (`id`) ON DELETE SET NULL;
 ALTER TABLE `bills` ADD CONSTRAINT `bills_patient_fk` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 ALTER TABLE `bill_items` ADD CONSTRAINT `bill_items_bill_fk` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`) ON DELETE CASCADE;
 ALTER TABLE `bill_payments` ADD CONSTRAINT `payments_bill_fk` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`) ON DELETE CASCADE;
