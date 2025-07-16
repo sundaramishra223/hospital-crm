@@ -168,6 +168,83 @@ function deleteDoctor($doctor_id) {
     }
 }
 
+function getDoctorById($doctor_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT d.*, u.username, u.email, u.phone, u.status, dep.name as department_name 
+                          FROM doctors d 
+                          JOIN users u ON d.user_id = u.id 
+                          LEFT JOIN departments dep ON d.department_id = dep.id 
+                          WHERE d.id = ?");
+    $stmt->execute([$doctor_id]);
+    return $stmt->fetch();
+}
+
+function updateDoctor($doctor_id, $data) {
+    global $pdo;
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Get user_id
+        $stmt = $pdo->prepare("SELECT user_id FROM doctors WHERE id = ?");
+        $stmt->execute([$doctor_id]);
+        $doctor = $stmt->fetch();
+        
+        if (!$doctor) {
+            return false;
+        }
+        
+        // Update user record
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?");
+        $stmt->execute([
+            $data['first_name'] . ' ' . $data['last_name'],
+            $data['email'],
+            $data['phone'],
+            $doctor['user_id']
+        ]);
+        
+        // Handle image upload
+        $image_path = null;
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
+            $image_path = uploadFile($_FILES['profile_image'], 'uploads/doctors/');
+        }
+        
+        // Update doctor details
+        $sql = "UPDATE doctors SET first_name = ?, middle_name = ?, last_name = ?, contact = ?, address = ?, education = ?, experience = ?, certificates = ?, awards = ?, vitals = ?, department_id = ?";
+        $params = [
+            $data['first_name'],
+            $data['middle_name'],
+            $data['last_name'],
+            $data['contact'],
+            $data['address'],
+            $data['education'],
+            $data['experience'],
+            $data['certificates'],
+            $data['awards'],
+            $data['vitals'],
+            $data['department_id']
+        ];
+        
+        if ($image_path) {
+            $sql .= ", image = ?";
+            $params[] = $image_path;
+        }
+        
+        $sql .= " WHERE id = ?";
+        $params[] = $doctor_id;
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        
+        $pdo->commit();
+        return true;
+    } catch (Exception $e) {
+        $pdo->rollback();
+        return false;
+    }
+}
+
 // Department functions
 function getDepartments() {
     global $pdo;
@@ -184,17 +261,33 @@ function addDepartment($name, $description) {
 }
 
 // Patient functions
-function getPatients() {
+function getPatients($type = 'all') {
     global $pdo;
     
-    $stmt = $pdo->query("SELECT * FROM patients WHERE status = 'active' ORDER BY first_name");
+    $sql = "SELECT * FROM patients WHERE status != 'deleted'";
+    
+    switch ($type) {
+        case 'inpatient':
+            $sql .= " AND patient_type = 'inpatient'";
+            break;
+        case 'outpatient':
+            $sql .= " AND patient_type = 'outpatient'";
+            break;
+        case 'emergency':
+            $sql .= " AND visit_reason LIKE '%emergency%'";
+            break;
+    }
+    
+    $sql .= " ORDER BY created_at DESC";
+    
+    $stmt = $pdo->query($sql);
     return $stmt->fetchAll();
 }
 
 function addPatient($data) {
     global $pdo;
     
-    $stmt = $pdo->prepare("INSERT INTO patients (first_name, middle_name, last_name, date_of_birth, gender, contact, email, address, emergency_contact, visit_reason, attendant_details, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt = $pdo->prepare("INSERT INTO patients (first_name, middle_name, last_name, date_of_birth, gender, contact, email, address, emergency_contact, visit_reason, attendant_details, patient_type, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())");
     
     return $stmt->execute([
         $data['first_name'],
@@ -207,8 +300,77 @@ function addPatient($data) {
         $data['address'],
         $data['emergency_contact'],
         $data['visit_reason'],
-        $data['attendant_details']
+        $data['attendant_details'],
+        $data['patient_type'] ?? 'outpatient'
     ]);
+}
+
+function getPatientById($patient_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT * FROM patients WHERE id = ?");
+    $stmt->execute([$patient_id]);
+    return $stmt->fetch();
+}
+
+function updatePatient($patient_id, $data) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE patients SET first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, gender = ?, contact = ?, email = ?, address = ?, emergency_contact = ?, visit_reason = ?, attendant_details = ?, patient_type = ? WHERE id = ?");
+    
+    return $stmt->execute([
+        $data['first_name'],
+        $data['middle_name'],
+        $data['last_name'],
+        $data['date_of_birth'],
+        $data['gender'],
+        $data['contact'],
+        $data['email'],
+        $data['address'],
+        $data['emergency_contact'],
+        $data['visit_reason'],
+        $data['attendant_details'],
+        $data['patient_type'] ?? 'outpatient',
+        $patient_id
+    ]);
+}
+
+function deletePatient($patient_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE patients SET status = 'deleted' WHERE id = ?");
+    return $stmt->execute([$patient_id]);
+}
+
+function convertPatientType($patient_id, $new_type) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("UPDATE patients SET patient_type = ? WHERE id = ?");
+    return $stmt->execute([$new_type, $patient_id]);
+}
+
+function getPatientVitals($patient_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT pv.*, u.name as recorded_by FROM patient_vitals pv 
+                          LEFT JOIN users u ON pv.recorded_by_user_id = u.id 
+                          WHERE pv.patient_id = ? 
+                          ORDER BY pv.recorded_at DESC LIMIT 10");
+    $stmt->execute([$patient_id]);
+    return $stmt->fetchAll();
+}
+
+function getPatientHistory($patient_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT ph.*, d.first_name as doctor_fname, d.last_name as doctor_lname, 
+                          CONCAT(d.first_name, ' ', d.last_name) as doctor_name 
+                          FROM patient_history ph 
+                          LEFT JOIN doctors d ON ph.doctor_id = d.id 
+                          WHERE ph.patient_id = ? 
+                          ORDER BY ph.created_at DESC");
+    $stmt->execute([$patient_id]);
+    return $stmt->fetchAll();
 }
 
 // Bed management
@@ -585,5 +747,211 @@ function getSystemHealth() {
     $health['log_size'] = round($total_log_size / (1024 * 1024), 2); // MB
     
     return $health;
+}
+
+// Billing functions
+function getBills() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT b.*, CONCAT(p.first_name, ' ', p.last_name) as patient_name 
+                        FROM bills b 
+                        JOIN patients p ON b.patient_id = p.id 
+                        ORDER BY b.created_at DESC");
+    return $stmt->fetchAll();
+}
+
+function getBillById($bill_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT b.*, CONCAT(p.first_name, ' ', p.last_name) as patient_name, 
+                          p.contact as patient_contact, p.email as patient_email 
+                          FROM bills b 
+                          JOIN patients p ON b.patient_id = p.id 
+                          WHERE b.id = ?");
+    $stmt->execute([$bill_id]);
+    return $stmt->fetch();
+}
+
+function addBill($data) {
+    global $pdo;
+    
+    try {
+        $pdo->beginTransaction();
+        
+        $items = json_decode($data['items'], true);
+        $subtotal = array_sum(array_column($items, 'total'));
+        $tax_amount = ($subtotal * ($data['tax_percentage'] ?? 0)) / 100;
+        $total_amount = $subtotal + $tax_amount - ($data['discount'] ?? 0);
+        
+        // Insert bill
+        $stmt = $pdo->prepare("INSERT INTO bills (patient_id, subtotal, tax_percentage, tax_amount, discount, total_amount, currency, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
+        $stmt->execute([
+            $data['patient_id'],
+            $subtotal,
+            $data['tax_percentage'] ?? 0,
+            $tax_amount,
+            $data['discount'] ?? 0,
+            $total_amount,
+            $data['currency'] ?? 'INR'
+        ]);
+        
+        $bill_id = $pdo->lastInsertId();
+        
+        // Insert bill items
+        foreach ($items as $item) {
+            $stmt = $pdo->prepare("INSERT INTO bill_items (bill_id, item_name, item_type, price, quantity, total) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $bill_id,
+                $item['name'],
+                $item['type'],
+                $item['price'],
+                $item['quantity'],
+                $item['total']
+            ]);
+        }
+        
+        $pdo->commit();
+        return $bill_id;
+    } catch (Exception $e) {
+        $pdo->rollback();
+        return false;
+    }
+}
+
+function getBillItems($bill_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT * FROM bill_items WHERE bill_id = ?");
+    $stmt->execute([$bill_id]);
+    return $stmt->fetchAll();
+}
+
+function getBillPayments($bill_id) {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT * FROM bill_payments WHERE bill_id = ? ORDER BY payment_date DESC");
+    $stmt->execute([$bill_id]);
+    return $stmt->fetchAll();
+}
+
+function recordPayment($bill_id, $data) {
+    global $pdo;
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Insert payment
+        $stmt = $pdo->prepare("INSERT INTO bill_payments (bill_id, amount, payment_method, transaction_ref, notes, payment_date) VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([
+            $bill_id,
+            $data['amount'],
+            $data['payment_method'],
+            $data['transaction_ref'],
+            $data['notes']
+        ]);
+        
+        // Update bill paid amount and status
+        $stmt = $pdo->prepare("UPDATE bills SET paid_amount = paid_amount + ? WHERE id = ?");
+        $stmt->execute([$data['amount'], $bill_id]);
+        
+        // Check if bill is fully paid
+        $stmt = $pdo->prepare("SELECT total_amount, paid_amount FROM bills WHERE id = ?");
+        $stmt->execute([$bill_id]);
+        $bill = $stmt->fetch();
+        
+        if ($bill['paid_amount'] >= $bill['total_amount']) {
+            $stmt = $pdo->prepare("UPDATE bills SET status = 'paid' WHERE id = ?");
+            $stmt->execute([$bill_id]);
+        } elseif ($bill['paid_amount'] > 0) {
+            $stmt = $pdo->prepare("UPDATE bills SET status = 'partial' WHERE id = ?");
+            $stmt->execute([$bill_id]);
+        }
+        
+        $pdo->commit();
+        return true;
+    } catch (Exception $e) {
+        $pdo->rollback();
+        return false;
+    }
+}
+
+function getTotalRevenue() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT SUM(paid_amount) as revenue FROM bills");
+    $result = $stmt->fetch();
+    return $result['revenue'] ?? 0;
+}
+
+function getPendingBillsCount() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM bills WHERE status = 'pending'");
+    return $stmt->fetch()['count'];
+}
+
+function getPaidBillsCount() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM bills WHERE status = 'paid'");
+    return $stmt->fetch()['count'];
+}
+
+function getOverdueBillsCount() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM bills WHERE status = 'pending' AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    return $stmt->fetch()['count'];
+}
+
+function getServices() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM services WHERE status = 'active' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function getMedicines() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM medicines WHERE status = 'active' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function getLabTests() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM lab_tests WHERE status = 'active' ORDER BY name");
+    return $stmt->fetchAll();
+}
+
+function getPaymentMethods() {
+    return [
+        ['code' => 'cash', 'name' => 'Cash', 'icon' => 'money'],
+        ['code' => 'card', 'name' => 'Credit/Debit Card', 'icon' => 'credit-card'],
+        ['code' => 'upi', 'name' => 'UPI', 'icon' => 'mobile'],
+        ['code' => 'netbanking', 'name' => 'Net Banking', 'icon' => 'bank'],
+        ['code' => 'cheque', 'name' => 'Cheque', 'icon' => 'file-text'],
+        ['code' => 'crypto', 'name' => 'Cryptocurrency', 'icon' => 'bitcoin']
+    ];
+}
+
+function getCurrencies() {
+    global $pdo;
+    
+    $stmt = $pdo->query("SELECT * FROM currencies WHERE status = 'active' ORDER BY code");
+    return $stmt->fetchAll();
+}
+
+function formatCurrency($amount, $currency = 'INR') {
+    $symbols = [
+        'INR' => '₹',
+        'USD' => '$',
+        'EUR' => '€',
+        'BTC' => '₿'
+    ];
+    
+    $symbol = $symbols[$currency] ?? $currency;
+    return $symbol . number_format($amount, 2);
 }
 ?>

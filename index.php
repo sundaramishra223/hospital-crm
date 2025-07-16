@@ -38,6 +38,34 @@ $user_details = getUserDetails($user_id);
     
     <!-- Main Content -->
     <div class="main-content">
+        <style>
+        /* Main Content Layout */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 70px;
+            margin-bottom: 60px;
+            padding: 30px;
+            min-height: calc(100vh - 130px);
+            background: #f8f9fa;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .dark-mode .main-content {
+            background: #121212;
+        }
+        
+        .sidebar-collapsed .main-content {
+            margin-left: 70px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 50px;
+                padding: 20px 15px;
+            }
+        }
+        </style>
         <?php
         // Route to appropriate dashboard based on role
         switch($user_role) {

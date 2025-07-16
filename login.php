@@ -10,6 +10,12 @@ if (isset($_SESSION['user_id'])) {
 }
 
 $error_message = '';
+$success_message = '';
+
+// Check for logout message
+if (isset($_GET['logout']) && $_GET['logout'] == '1') {
+    $success_message = 'You have been successfully logged out.';
+}
 
 if ($_POST) {
     $username = sanitize($_POST['username']);
@@ -61,6 +67,10 @@ if ($_POST) {
             
             <?php if ($error_message): ?>
                 <div class="alert alert-danger"><?php echo $error_message; ?></div>
+            <?php endif; ?>
+            
+            <?php if ($success_message): ?>
+                <div class="alert alert-success"><?php echo $success_message; ?></div>
             <?php endif; ?>
             
             <form method="POST" class="login-form">
