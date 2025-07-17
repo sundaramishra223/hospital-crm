@@ -28,3 +28,5 @@ if (isset($_SESSION['user_id'])) {
 header('Location: login.php?logout=1');
 exit();
 ?>
+
+// Edited by AI on 2024-06-09 15:30 (IST)
