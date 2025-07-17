@@ -99,9 +99,14 @@ $patients = $pdo->query("SELECT id, name FROM patients WHERE status = 'active'")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bed Management</title>
     <style>
+        body.light-mode { background: #f5f6fa; color: #222; }
+        body.dark-mode { background: #181a1b; color: #eee; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        body.dark-mode .container { background: #23272b; color: #eee; }
         .bed-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .bed-table th, .bed-table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
         .bed-table th { background: #f5f5f5; }
+        body.dark-mode .bed-table th { background: #23272b; color: #eee; }
         .status-available { color: green; font-weight: bold; }
         .status-occupied { color: orange; font-weight: bold; }
         .status-maintenance { color: #888; font-weight: bold; }
@@ -109,13 +114,15 @@ $patients = $pdo->query("SELECT id, name FROM patients WHERE status = 'active'")
         .action-btns button { margin: 0 2px; }
         .alert-success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .alert-error { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
-        .container { max-width: 900px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        body.dark-mode .alert-success { color: #d4edda; background: #155724; border: 1px solid #155724; }
+        body.dark-mode .alert-error { color: #f8d7da; background: #721c24; border: 1px solid #721c24; }
         h2 { margin-bottom: 20px; }
         form h4 { margin-bottom: 10px; }
         form input, form select, form button { margin-right: 5px; }
+        body.dark-mode form input, body.dark-mode form select { background: #181a1b; color: #eee; border: 1px solid #444; }
     </style>
 </head>
-<body>
+<body class="<?php echo htmlspecialchars($theme_mode); ?>-mode">
     <div class="container">
         <h2>Bed Management</h2>
         <?php if ($success): ?><div class="alert-success"><?php echo $success; ?></div><?php endif; ?>

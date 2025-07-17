@@ -52,16 +52,21 @@ $theme_mode = getSetting('theme_mode', 'light');
     <title>Settings - <?php echo htmlspecialchars($site_title); ?></title>
     <link rel="icon" type="image/x-icon" href="<?php echo htmlspecialchars($favicon); ?>">
     <style>
+        body.light-mode { background: #f5f6fa; color: #222; }
+        body.dark-mode { background: #181a1b; color: #eee; }
         .settings-form { max-width: 600px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        body.dark-mode .settings-form { background: #23272b; color: #eee; }
         .settings-form label { font-weight: 500; margin-top: 15px; display: block; }
         .settings-form input[type="text"], .settings-form input[type="color"], .settings-form select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        body.dark-mode .settings-form input, body.dark-mode .settings-form select { background: #181a1b; color: #eee; border: 1px solid #444; }
         .settings-form input[type="file"] { margin-top: 5px; }
         .settings-form img { max-height: 40px; margin-top: 5px; }
         .settings-form button { margin-top: 20px; }
         .alert-success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+        body.dark-mode .alert-success { color: #d4edda; background: #155724; border: 1px solid #155724; }
     </style>
 </head>
-<body>
+<body class="<?php echo htmlspecialchars($theme_mode); ?>-mode">
     <div class="settings-form">
         <h2>System Settings</h2>
         <?php if ($success): ?>
