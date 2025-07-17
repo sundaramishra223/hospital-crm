@@ -39,11 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $enable_multi_currency = isset($_POST['enable_multi_currency']) ? 1 : 0;
     $default_currency = $_POST['default_currency'] ?? 'INR';
     $enable_crypto = isset($_POST['enable_crypto']) ? 1 : 0;
+    $enable_multi_hospital = isset($_POST['enable_multi_hospital']) ? 1 : 0;
     updateSetting('enable_tax', $enable_tax);
     updateSetting('tax_percent', $tax_percent);
     updateSetting('enable_multi_currency', $enable_multi_currency);
     updateSetting('default_currency', $default_currency);
     updateSetting('enable_crypto', $enable_crypto);
+    updateSetting('enable_multi_hospital', $enable_multi_hospital);
     $template_reminder = $_POST['template_reminder'] ?? '';
     $template_bill = $_POST['template_bill'] ?? '';
     $template_emergency = $_POST['template_emergency'] ?? '';
@@ -66,6 +68,7 @@ $tax_percent = getSetting('tax_percent', 0);
 $enable_multi_currency = getSetting('enable_multi_currency', 0);
 $default_currency = getSetting('default_currency', 'INR');
 $enable_crypto = getSetting('enable_crypto', 0);
+$enable_multi_hospital = getSetting('enable_multi_hospital', 0);
 $template_reminder = getSetting('template_reminder', 'Dear {name}, your appointment is scheduled on {date}.');
 $template_bill = getSetting('template_bill', 'Dear {name}, your bill amount is {amount}.');
 $template_emergency = getSetting('template_emergency', 'Emergency alert: {message}');
@@ -125,6 +128,7 @@ $template_custom = getSetting('template_custom', 'Hello {name}, ...');
             <label><input type="checkbox" name="enable_multi_currency" value="1" <?php if ($enable_multi_currency) echo 'checked'; ?>> Enable Multi-Currency</label>
             <input type="text" name="default_currency" value="<?php echo htmlspecialchars($default_currency); ?>" placeholder="Default Currency (e.g. INR, USD)">
             <label><input type="checkbox" name="enable_crypto" value="1" <?php if ($enable_crypto) echo 'checked'; ?>> Enable Crypto</label>
+            <label><input type="checkbox" name="enable_multi_hospital" value="1" <?php if ($enable_multi_hospital) echo 'checked'; ?>> Enable Multi-Hospital/Clinic System</label>
 
             <h3>Notification Templates</h3>
             <label>Appointment Reminder Template</label>
