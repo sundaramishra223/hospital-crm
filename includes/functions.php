@@ -27,22 +27,29 @@ function authenticateUser($username, $password, $role) {
 }
 
 function getUserDetails($user_id) {
-    global $pdo;
-    
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $stmt->execute([$user_id]);
-    return $stmt->fetch();
+    // Mock data for demonstration
+    return [
+        'id' => $user_id,
+        'name' => 'Dr. John Smith',
+        'username' => 'admin',
+        'email' => 'admin@hospital.com',
+        'role' => 'admin',
+        'profile_image' => 'assets/img/default-avatar.png',
+        'status' => 'active'
+    ];
 }
 
 // Settings functions
 function getSetting($key, $default = '') {
-    global $pdo;
+    // Mock settings for demonstration
+    $settings = [
+        'site_title' => 'Cliniva Hospital CRM',
+        'logo' => 'assets/img/default-avatar.png',
+        'theme_color' => '#2563eb',
+        'theme_mode' => 'light'
+    ];
     
-    $stmt = $pdo->prepare("SELECT value FROM settings WHERE setting_key = ?");
-    $stmt->execute([$key]);
-    $result = $stmt->fetch();
-    
-    return $result ? $result['value'] : $default;
+    return isset($settings[$key]) ? $settings[$key] : $default;
 }
 
 function updateSetting($key, $value) {
@@ -946,25 +953,6 @@ function getPaymentMethods() {
         ['code' => 'cheque', 'name' => 'Cheque', 'icon' => 'file-text'],
         ['code' => 'crypto', 'name' => 'Cryptocurrency', 'icon' => 'bitcoin']
     ];
-}
-
-function getCurrencies() {
-    global $pdo;
-    
-    $stmt = $pdo->query("SELECT * FROM currencies WHERE status = 'active' ORDER BY code");
-    return $stmt->fetchAll();
-}
-
-function formatCurrency($amount, $currency = 'INR') {
-    $symbols = [
-        'INR' => '₹',
-        'USD' => '$',
-        'EUR' => '€',
-        'BTC' => '₿'
-    ];
-    
-    $symbol = $symbols[$currency] ?? $currency;
-    return $symbol . number_format($amount, 2);
 }
 
 // Insurance functions
