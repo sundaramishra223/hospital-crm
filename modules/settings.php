@@ -51,7 +51,6 @@ $theme_mode = getSetting('theme_mode', 'light');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - <?php echo htmlspecialchars($site_title); ?></title>
     <link rel="icon" type="image/x-icon" href="<?php echo htmlspecialchars($favicon); ?>">
-    <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         .settings-form { max-width: 600px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
         .settings-form label { font-weight: 500; margin-top: 15px; display: block; }

@@ -98,7 +98,6 @@ $patients = $pdo->query("SELECT id, name FROM patients WHERE status = 'active'")
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bed Management</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         .bed-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .bed-table th, .bed-table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
@@ -110,6 +109,10 @@ $patients = $pdo->query("SELECT id, name FROM patients WHERE status = 'active'")
         .action-btns button { margin: 0 2px; }
         .alert-success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .alert-error { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        h2 { margin-bottom: 20px; }
+        form h4 { margin-bottom: 10px; }
+        form input, form select, form button { margin-right: 5px; }
     </style>
 </head>
 <body>
