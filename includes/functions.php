@@ -450,11 +450,10 @@ function uploadFile($file, $folder = 'uploads/') {
 // Get recent activities for admin dashboard
 function getRecentActivities($limit = 10) {
     global $pdo;
-    
-    $stmt = $pdo->prepare("SELECT al.*, u.name as user_name FROM activity_logs al 
+    $limit = (int)$limit; // Ensure it's an integer
+    $stmt = $pdo->query("SELECT al.*, u.name as user_name FROM activity_logs al 
                           JOIN users u ON al.user_id = u.id 
-                          ORDER BY al.created_at DESC LIMIT ?");
-    $stmt->execute([$limit]);
+                          ORDER BY al.created_at DESC LIMIT $limit");
     return $stmt->fetchAll();
 }
 
