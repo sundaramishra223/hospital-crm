@@ -43,6 +43,11 @@ $roles = $pdo->query("SELECT DISTINCT role FROM users WHERE status='active'")->f
 // Fetch sent notifications
 $sent = $pdo->query("SELECT n.*, u.name as user_name, u.role as user_role FROM notifications n LEFT JOIN users u ON n.user_id = u.id ORDER BY n.sent_at DESC LIMIT 100")->fetchAll();
 
+$template_reminder = getSetting('template_reminder', 'Dear {name}, your appointment is scheduled on {date}.');
+$template_bill = getSetting('template_bill', 'Dear {name}, your bill amount is {amount}.');
+$template_emergency = getSetting('template_emergency', 'Emergency alert: {message}');
+$template_custom = getSetting('template_custom', 'Hello {name}, ...');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,9 +80,9 @@ $sent = $pdo->query("SELECT n.*, u.name as user_name, u.role as user_role FROM n
         <h2>Notifications (Email/SMS)</h2>
         <?php if ($success): ?><div class="alert-success"><?php echo $success; ?></div><?php endif; ?>
         <?php if ($error): ?><div class="alert-error"><?php echo $error; ?></div><?php endif; ?>
-        <form method="post" style="margin-bottom:20px;">
+        <form method="post" style="margin-bottom:20px;" id="notificationForm">
             <h4>Send Notification</h4>
-            <select name="type" required>
+            <select name="type" id="typeSelect" required onchange="setTemplate()">
                 <option value="reminder">Appointment Reminder</option>
                 <option value="bill">Bill</option>
                 <option value="emergency">Emergency</option>
@@ -95,7 +100,7 @@ $sent = $pdo->query("SELECT n.*, u.name as user_name, u.role as user_role FROM n
                     <option value="<?php echo $u['id']; ?>"><?php echo htmlspecialchars($u['name']) . ' (' . $u['role'] . ')'; ?></option>
                 <?php endforeach; ?>
             </select>
-            <textarea name="message" placeholder="Message template..." required></textarea>
+            <textarea name="message" id="messageBox" placeholder="Message template..." required></textarea>
             <button type="submit" name="send_notification">Send</button>
         </form>
         <h4>Sent Notifications (Log)</h4>
@@ -127,5 +132,20 @@ $sent = $pdo->query("SELECT n.*, u.name as user_name, u.role as user_role FROM n
             Templates can be customized in the message box above.
         </div>
     </div>
+    <script>
+function setTemplate() {
+    var type = document.getElementById('typeSelect').value;
+    var templates = {
+        reminder: <?php echo json_encode($template_reminder); ?>,
+        bill: <?php echo json_encode($template_bill); ?>,
+        emergency: <?php echo json_encode($template_emergency); ?>,
+        custom: <?php echo json_encode($template_custom); ?>
+    };
+    document.getElementById('messageBox').value = templates[type] || '';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    setTemplate();
+});
+</script>
 </body>
 </html>
