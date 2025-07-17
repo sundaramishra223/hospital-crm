@@ -34,6 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     updateSetting('site_title', $site_title);
     updateSetting('theme_color', $theme_color);
     updateSetting('theme_mode', $theme_mode);
+    $enable_tax = isset($_POST['enable_tax']) ? 1 : 0;
+    $tax_percent = $_POST['tax_percent'] ?? 0;
+    $enable_multi_currency = isset($_POST['enable_multi_currency']) ? 1 : 0;
+    $default_currency = $_POST['default_currency'] ?? 'INR';
+    $enable_crypto = isset($_POST['enable_crypto']) ? 1 : 0;
+    updateSetting('enable_tax', $enable_tax);
+    updateSetting('tax_percent', $tax_percent);
+    updateSetting('enable_multi_currency', $enable_multi_currency);
+    updateSetting('default_currency', $default_currency);
+    updateSetting('enable_crypto', $enable_crypto);
     $success = 'Settings updated successfully!';
 }
 
@@ -43,6 +53,11 @@ $logo = getSetting('logo', '../assets/images/logo.png');
 $favicon = getSetting('favicon', '../assets/images/favicon.ico');
 $theme_color = getSetting('theme_color', '#007bff');
 $theme_mode = getSetting('theme_mode', 'light');
+$enable_tax = getSetting('enable_tax', 0);
+$tax_percent = getSetting('tax_percent', 0);
+$enable_multi_currency = getSetting('enable_multi_currency', 0);
+$default_currency = getSetting('default_currency', 'INR');
+$enable_crypto = getSetting('enable_crypto', 0);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,6 +107,12 @@ $theme_mode = getSetting('theme_mode', 'light');
                 <option value="light" <?php if ($theme_mode === 'light') echo 'selected'; ?>>Light</option>
                 <option value="dark" <?php if ($theme_mode === 'dark') echo 'selected'; ?>>Dark</option>
             </select>
+
+            <label><input type="checkbox" name="enable_tax" value="1" <?php if ($enable_tax) echo 'checked'; ?>> Enable Tax</label>
+            <input type="number" name="tax_percent" value="<?php echo htmlspecialchars($tax_percent); ?>" min="0" max="100" step="0.01" placeholder="Tax %">
+            <label><input type="checkbox" name="enable_multi_currency" value="1" <?php if ($enable_multi_currency) echo 'checked'; ?>> Enable Multi-Currency</label>
+            <input type="text" name="default_currency" value="<?php echo htmlspecialchars($default_currency); ?>" placeholder="Default Currency (e.g. INR, USD)">
+            <label><input type="checkbox" name="enable_crypto" value="1" <?php if ($enable_crypto) echo 'checked'; ?>> Enable Crypto</label>
 
             <button type="submit" class="btn btn-primary">Save Settings</button>
         </form>
