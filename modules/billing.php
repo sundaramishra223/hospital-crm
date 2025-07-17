@@ -56,6 +56,11 @@ switch ($action) {
         $services = getServices();
         $medicines = getMedicines();
         $tests = getLabTests();
+        $enable_tax = getSetting('enable_tax', 0);
+        $tax_percent = getSetting('tax_percent', 0);
+        $enable_multi_currency = getSetting('enable_multi_currency', 0);
+        $default_currency = getSetting('default_currency', 'INR');
+        $enable_crypto = getSetting('enable_crypto', 0);
         break;
 }
 
@@ -264,6 +269,8 @@ $payment_methods = getPaymentMethods();
             background: #17a2b8;
             color: white;
         }
+        label { display: block; margin-top: 10px; }
+        input[type=number], select { margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -432,16 +439,30 @@ $payment_methods = getPaymentMethods();
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Currency</label>
-                                    <select name="currency" class="form-control">
-                                        <?php foreach ($currencies as $currency): ?>
-                                            <option value="<?php echo $currency['code']; ?>" <?php echo $currency['code'] == 'INR' ? 'selected' : ''; ?>>
-                                                <?php echo $currency['code'] . ' - ' . $currency['name']; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
+                                <?php if ($enable_multi_currency): ?>
+                                    <div class="form-group">
+                                        <label>Currency</label>
+                                        <select name="currency" class="form-control">
+                                            <?php foreach ($currencies as $currency): ?>
+                                                <option value="<?php echo $currency['code']; ?>" <?php echo $currency['code'] == $default_currency ? 'selected' : ''; ?>>
+                                                    <?php echo $currency['code'] . ' - ' . $currency['name']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($enable_crypto): ?>
+                                    <div class="form-group">
+                                        <label>Crypto</label>
+                                        <select name="crypto" class="form-control">
+                                            <option value="">None</option>
+                                            <option value="BTC">Bitcoin (BTC)</option>
+                                            <option value="ETH">Ethereum (ETH)</option>
+                                            <option value="USDT">Tether (USDT)</option>
+                                            <!-- Add more as needed -->
+                                        </select>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -575,10 +596,12 @@ $payment_methods = getPaymentMethods();
                         <div class="bill-summary">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Tax (%)</label>
-                                        <input type="number" name="tax_percentage" class="form-control" value="0" step="0.01" onchange="calculateTotal()">
-                                    </div>
+                                    <?php if ($enable_tax): ?>
+                                        <div class="form-group">
+                                            <label>Tax (%)</label>
+                                            <input type="number" name="tax_percentage" class="form-control" value="<?php echo htmlspecialchars($tax_percent); ?>" min="0" max="100" step="0.01" onchange="calculateTotal()">
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="form-group">
                                         <label>Discount</label>
                                         <input type="number" name="discount" class="form-control" value="0" step="0.01" onchange="calculateTotal()">
@@ -590,10 +613,12 @@ $payment_methods = getPaymentMethods();
                                             <td><strong>Subtotal:</strong></td>
                                             <td class="text-right"><span id="subtotal">₹0.00</span></td>
                                         </tr>
-                                        <tr>
-                                            <td><strong>Tax:</strong></td>
-                                            <td class="text-right"><span id="taxAmount">₹0.00</span></td>
-                                        </tr>
+                                        <?php if ($enable_tax): ?>
+                                            <tr>
+                                                <td><strong>Tax:</strong></td>
+                                                <td class="text-right"><span id="taxAmount">₹0.00</span></td>
+                                            </tr>
+                                        <?php endif; ?>
                                         <tr>
                                             <td><strong>Discount:</strong></td>
                                             <td class="text-right"><span id="discountAmount">₹0.00</span></td>
@@ -738,10 +763,12 @@ $payment_methods = getPaymentMethods();
                                         <td><strong>Subtotal:</strong></td>
                                         <td class="text-right"><?php echo formatCurrency($bill['subtotal'], $bill['currency']); ?></td>
                                     </tr>
-                                    <tr>
-                                        <td><strong>Tax (<?php echo $bill['tax_percentage']; ?>%):</strong></td>
-                                        <td class="text-right"><?php echo formatCurrency($bill['tax_amount'], $bill['currency']); ?></td>
-                                    </tr>
+                                    <?php if ($enable_tax): ?>
+                                        <tr>
+                                            <td><strong>Tax (<?php echo htmlspecialchars($tax_percent); ?>%):</strong></td>
+                                            <td class="text-right"><?php echo formatCurrency($bill['tax_amount'], $bill['currency']); ?></td>
+                                        </tr>
+                                    <?php endif; ?>
                                     <tr>
                                         <td><strong>Discount:</strong></td>
                                         <td class="text-right"><?php echo formatCurrency($bill['discount'], $bill['currency']); ?></td>
@@ -758,6 +785,12 @@ $payment_methods = getPaymentMethods();
                                         <td><strong>Balance:</strong></td>
                                         <td class="text-right"><strong><?php echo formatCurrency($bill['total_amount'] - $bill['paid_amount'], $bill['currency']); ?></strong></td>
                                     </tr>
+                                    <?php if ($enable_multi_currency): ?>
+                                        <tr><td>Currency</td><td><?php echo htmlspecialchars($bill['currency']); ?></td></tr>
+                                    <?php endif; ?>
+                                    <?php if ($enable_crypto && $bill['crypto']): ?>
+                                        <tr><td>Crypto</td><td><?php echo htmlspecialchars($bill['crypto']); ?></td></tr>
+                                    <?php endif; ?>
                                 </table>
                             </div>
                         </div>

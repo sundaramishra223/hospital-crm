@@ -1,0 +1,116 @@
+body {
+    background: #f4f6f9;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.sidebar {
+    min-height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e0e0e0;
+    padding-top: 20px;
+    width: 220px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+}
+.sidebar a {
+    color: #1976d2;
+    display: block;
+    padding: 12px 24px;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px 0 0 8px;
+    margin-bottom: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+.sidebar a:hover, .sidebar a.active {
+    background: #e3f2fd;
+    color: #0d47a1;
+}
+.header {
+    background: #1976d2;
+    color: #fff;
+    padding: 16px 32px;
+    margin-left: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 101;
+}
+.main-content {
+    margin-left: 220px;
+    padding: 32px 24px;
+}
+.dashboard-cards {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.dashboard-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.10);
+    padding: 24px 32px;
+    min-width: 220px;
+    flex: 1 1 220px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.card-icon {
+    font-size: 2.2rem;
+    padding: 16px;
+    border-radius: 50%;
+    background: #e3f2fd;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 1.1rem;
+    color: #888;
+    font-weight: 600;
+}
+.card-info p {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1976d2;
+}
+@media (max-width: 900px) {
+    .sidebar {
+        width: 60px;
+        padding-top: 10px;
+    }
+    .header, .main-content {
+        margin-left: 60px;
+    }
+    .dashboard-cards {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+@media (max-width: 600px) {
+    .sidebar, .header, .main-content {
+        margin-left: 0;
+        width: 100vw;
+    }
+    .sidebar {
+        position: static;
+        width: 100vw;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .main-content {
+        padding: 12px 4px;
+    }
+}

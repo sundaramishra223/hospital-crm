@@ -284,6 +284,102 @@ $video_consultations = getVideoConsultations();
                 </div>
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-cogs"></i>
+                    <h5>Equipment</h5>
+                    <p>Manage hospital equipment</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/equipment.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-user-nurse"></i>
+                    <h5>Nurse Management</h5>
+                    <p>Manage nurse profiles and assignments</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/nurse.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-user"></i>
+                    <h5>Staff Management</h5>
+                    <p>Manage staff profiles and assignments</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/staff.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-user-graduate"></i>
+                    <h5>Intern Management</h5>
+                    <p>Manage interns and assignments</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/intern.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-money-check-alt"></i>
+                    <h5>Salary Management</h5>
+                    <p>Manage staff salaries</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/salary.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-calendar-check"></i>
+                    <h5>Attendance</h5>
+                    <p>Manage attendance records</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/attendance.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-user-clock"></i>
+                    <h5>Shift Management</h5>
+                    <p>Manage staff shifts</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/shift.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-clipboard-list"></i>
+                    <h5>Audit & Logs</h5>
+                    <p>View system audit and action trails</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/audit.php'">
+                        View Logs
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-3">
+                <div class="module-card">
+                    <i class="fa fa-envelope"></i>
+                    <h5>Email/SMS System</h5>
+                    <p>Send and manage notifications</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.location='modules/notifications.php'">
+                        Manage
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Activities -->

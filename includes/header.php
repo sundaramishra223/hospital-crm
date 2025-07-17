@@ -3,7 +3,12 @@ $user_details = getUserDetails($_SESSION['user_id']);
 $site_title = getSetting('site_title', 'Hospital CRM');
 $logo = getSetting('logo', 'assets/images/logo.png');
 $theme_color = getSetting('theme_color', '#007bff');
-$theme_mode = getSetting('theme_mode', 'light');
+if (isset($_GET['toggle_mode'])) {
+    $_SESSION['theme_mode'] = ($_SESSION['theme_mode'] ?? 'light') === 'light' ? 'dark' : 'light';
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
+    exit();
+}
+$theme_mode = $_SESSION['theme_mode'] ?? getSetting('theme_mode', 'light');
 ?>
 
 <header class="main-header" style="--primary-color: <?php echo $theme_color; ?>;">
@@ -87,8 +92,8 @@ $theme_mode = getSetting('theme_mode', 'light');
                     
                     <!-- Theme Toggle -->
                     <li class="nav-item">
-                        <a class="nav-link theme-toggle" href="#" onclick="toggleTheme()">
-                            <i class="fa fa-moon-o" id="themeIcon"></i>
+                        <a href="?toggle_mode=1" class="nav-link">
+                            <i class="fa fa-adjust"></i> <?php echo $theme_mode === 'dark' ? 'Light Mode' : 'Dark Mode'; ?>
                         </a>
                     </li>
                     
