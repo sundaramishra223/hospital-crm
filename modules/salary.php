@@ -92,6 +92,9 @@ $year_filter = $_GET['year'] ?? date('Y');
 $employee_filter = $_GET['employee'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 
+$user = getUserDetails($user_id);
+$user_department_id = $user['department_id'] ?? null;
+
 // Build query based on filters
 $where_conditions = ['1=1'];
 $params = [];
@@ -116,11 +119,17 @@ if (!empty($status_filter)) {
     $params[] = $status_filter;
 }
 
+// Department-based view rights for non-admin
+if ($user_role !== 'admin' && $user_department_id) {
+    $where_conditions[] = 'u.department_id = ?';
+    $params[] = $user_department_id;
+}
+
 $where_clause = implode(' AND ', $where_conditions);
 
 // Get salary slips with employee details
 $stmt = $pdo->prepare("
-    SELECT ss.*, u.name as employee_name, u.role as employee_role, u.email as employee_email
+    SELECT ss.*, u.name as employee_name, u.role as employee_role, u.email as employee_email, u.department_id
     FROM salary_slips ss
     JOIN users u ON ss.user_id = u.id
     WHERE $where_clause
