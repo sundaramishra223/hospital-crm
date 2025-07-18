@@ -732,7 +732,8 @@ if ($_POST) {
     </style>
     
     <script src="assets/js/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Bundle JS: Use CDN fallback if local file is missing -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
     // Role selection functionality
