@@ -181,7 +181,7 @@ if ($_POST) {
                 </div>
             </div>
             
-            <!-- Login Form Modal -->
+            <!-- Login Form Modal (Bootstrap 5) -->
             <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content login-modal-content">
@@ -190,14 +190,14 @@ if ($_POST) {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" class="login-form" id="loginFormElement">
+                            <form method="POST" class="login-form" id="loginFormElement" autocomplete="off">
                                 <input type="hidden" name="role" id="modal-role" value="">
                                 <div class="form-group">
                                     <label for="modal-username">
                                         <i class="fa fa-user"></i>
                                         Username
                                     </label>
-                                    <input type="text" name="username" id="modal-username" class="form-control" required>
+                                    <input type="text" name="username" id="modal-username" class="form-control" required autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label for="modal-password">
@@ -205,7 +205,7 @@ if ($_POST) {
                                         Password
                                     </label>
                                     <div class="password-input">
-                                        <input type="password" name="password" id="modal-password" class="form-control" required>
+                                        <input type="password" name="password" id="modal-password" class="form-control" required autocomplete="off">
                                         <button type="button" class="btn-toggle-password" onclick="togglePassword()">
                                             <i class="fa fa-eye"></i>
                                         </button>
@@ -729,6 +729,9 @@ if ($_POST) {
     .login-modal-content .modal-body {
         padding-top: 0;
     }
+    .modal-backdrop.show { z-index: 1050; }
+    .modal { z-index: 1100; }
+    .login-modal-content { z-index: 1200; }
     </style>
     
     <script src="assets/js/jquery-3.6.0.min.js"></script>
@@ -747,7 +750,8 @@ if ($_POST) {
         document.getElementById('selectedRoleTitle').textContent = getRoleTitle(role);
         
         // Show the login modal
-        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        var modalEl = document.getElementById('loginModal');
+        var loginModal = bootstrap.Modal.getOrCreateInstance(modalEl);
         loginModal.show();
         
         // Focus on username field after modal is shown
