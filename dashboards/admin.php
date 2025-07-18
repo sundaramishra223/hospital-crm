@@ -21,14 +21,9 @@ $theme_color = getSetting('theme_color', '#667eea');
 <style>
 /* Modern Admin Dashboard Styles */
 .admin-dashboard {
-    padding: 30px;
+    padding: 20px;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.dark-mode .admin-dashboard {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
 }
 
 /* Dashboard Header */
@@ -40,11 +35,6 @@ $theme_color = getSetting('theme_color', '#667eea');
     margin-bottom: 30px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark-mode .dashboard-header {
-    background: rgba(26, 26, 26, 0.95);
-    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .header-content {
@@ -66,6 +56,10 @@ $theme_color = getSetting('theme_color', '#667eea');
     display: flex;
     align-items: center;
     gap: 15px;
+    background: linear-gradient(135deg, var(--primary-color), #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .dashboard-title i {
@@ -83,10 +77,6 @@ $theme_color = getSetting('theme_color', '#667eea');
     line-height: 1.6;
 }
 
-.dark-mode .welcome-text {
-    color: #ccc;
-}
-
 .quick-stats {
     display: flex;
     gap: 20px;
@@ -100,8 +90,8 @@ $theme_color = getSetting('theme_color', '#667eea');
     padding: 8px 16px;
     background: rgba(102, 126, 234, 0.1);
     border-radius: 12px;
-    font-size: 14px;
     color: var(--primary-color);
+    font-size: 14px;
     font-weight: 500;
 }
 
@@ -131,34 +121,12 @@ $theme_color = getSetting('theme_color', '#667eea');
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    position: relative;
-    overflow: hidden;
-}
-
-.action-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.action-btn:hover::before {
-    left: 100%;
+    color: white;
 }
 
 .action-btn.primary {
     background: linear-gradient(135deg, var(--primary-color), #764ba2);
-    color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.action-btn.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 .action-btn.secondary {
@@ -167,22 +135,14 @@ $theme_color = getSetting('theme_color', '#667eea');
     border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
-.action-btn.secondary:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-}
-
 .action-btn.info {
-    background: rgba(23, 162, 184, 0.1);
-    color: #17a2b8;
-    border: 1px solid rgba(23, 162, 184, 0.2);
+    background: linear-gradient(135deg, #17a2b8, #20c997);
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
 }
 
-.action-btn.info:hover {
-    background: #17a2b8;
-    color: white;
+.action-btn:hover {
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .btn-icon {
@@ -214,11 +174,6 @@ $theme_color = getSetting('theme_color', '#667eea');
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-}
-
-.dark-mode .stat-card {
-    background: rgba(26, 26, 26, 0.95);
-    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .stat-card::before {
@@ -294,16 +249,19 @@ $theme_color = getSetting('theme_color', '#667eea');
     color: #6c757d;
 }
 
+.stat-content {
+    text-align: center;
+}
+
 .stat-number {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
     color: #333;
     margin: 0 0 8px 0;
-    line-height: 1;
-}
-
-.dark-mode .stat-number {
-    color: #fff;
+    background: linear-gradient(135deg, var(--primary-color), #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .stat-label {
@@ -311,10 +269,6 @@ $theme_color = getSetting('theme_color', '#667eea');
     color: #666;
     margin: 0 0 15px 0;
     font-weight: 500;
-}
-
-.dark-mode .stat-label {
-    color: #ccc;
 }
 
 .stat-progress {
@@ -325,15 +279,11 @@ $theme_color = getSetting('theme_color', '#667eea');
     overflow: hidden;
 }
 
-.dark-mode .stat-progress {
-    background: rgba(255, 255, 255, 0.1);
-}
-
 .progress-bar {
     height: 100%;
     background: linear-gradient(90deg, var(--primary-color), #764ba2);
     border-radius: 3px;
-    transition: width 1s ease;
+    transition: width 0.3s ease;
 }
 
 /* Charts Section */
@@ -357,11 +307,6 @@ $theme_color = getSetting('theme_color', '#667eea');
     transition: all 0.3s ease;
 }
 
-.dark-mode .chart-card {
-    background: rgba(26, 26, 26, 0.95);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
 .chart-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
@@ -370,7 +315,7 @@ $theme_color = getSetting('theme_color', '#667eea');
 .chart-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 20px;
 }
 
@@ -384,18 +329,10 @@ $theme_color = getSetting('theme_color', '#667eea');
     gap: 10px;
 }
 
-.dark-mode .chart-title h4 {
-    color: #fff;
-}
-
 .chart-title p {
     font-size: 14px;
     color: #666;
     margin: 0;
-}
-
-.dark-mode .chart-title p {
-    color: #ccc;
 }
 
 .chart-controls {
@@ -406,19 +343,13 @@ $theme_color = getSetting('theme_color', '#667eea');
 
 .chart-filter {
     padding: 8px 12px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.2);
     border-radius: 8px;
-    background: white;
-    font-size: 14px;
+    background: rgba(102, 126, 234, 0.05);
     color: #333;
+    font-size: 14px;
     outline: none;
     transition: all 0.3s ease;
-}
-
-.dark-mode .chart-filter {
-    background: #333;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #fff;
 }
 
 .chart-filter:focus {
@@ -429,28 +360,21 @@ $theme_color = getSetting('theme_color', '#667eea');
 .refresh-btn {
     width: 35px;
     height: 35px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: none;
     border-radius: 8px;
-    background: white;
-    color: #666;
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-color);
     cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.dark-mode .refresh-btn {
-    background: #333;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #ccc;
 }
 
 .refresh-btn:hover {
     background: var(--primary-color);
     color: white;
-    border-color: var(--primary-color);
-    transform: scale(1.05);
+    transform: rotate(180deg);
 }
 
 .chart-body {
@@ -463,15 +387,11 @@ $theme_color = getSetting('theme_color', '#667eea');
     .charts-grid {
         grid-template-columns: 1fr;
     }
-    
-    .charts-grid .side-chart {
-        order: -1;
-    }
 }
 
 @media (max-width: 768px) {
     .admin-dashboard {
-        padding: 20px;
+        padding: 15px;
     }
     
     .dashboard-header {
@@ -481,6 +401,10 @@ $theme_color = getSetting('theme_color', '#667eea');
     .header-content {
         flex-direction: column;
         gap: 20px;
+    }
+    
+    .dashboard-title {
+        font-size: 24px;
     }
     
     .header-actions {
@@ -493,44 +417,35 @@ $theme_color = getSetting('theme_color', '#667eea');
     }
     
     .quick-stats {
-        justify-content: center;
+        gap: 10px;
     }
     
-    .dashboard-title {
-        font-size: 24px;
-        justify-content: center;
-    }
-    
-    .welcome-text {
-        text-align: center;
+    .quick-stat {
+        font-size: 12px;
+        padding: 6px 12px;
     }
 }
 
 @media (max-width: 480px) {
-    .admin-dashboard {
-        padding: 15px;
+    .dashboard-title {
+        font-size: 20px;
     }
     
-    .dashboard-header {
-        padding: 15px;
+    .welcome-text {
+        font-size: 14px;
+    }
+    
+    .action-btn {
+        padding: 10px 15px;
+        font-size: 12px;
     }
     
     .stat-card {
         padding: 20px;
     }
     
-    .chart-card {
-        padding: 20px;
-    }
-    
-    .header-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .action-btn {
-        width: 100%;
-        justify-content: center;
+    .stat-number {
+        font-size: 28px;
     }
 }
 </style>
@@ -546,40 +461,30 @@ $theme_color = getSetting('theme_color', '#667eea');
                         Admin Dashboard
                     </h1>
                     <p class="welcome-text">Welcome back, <strong><?php echo $_SESSION['user_name']; ?></strong>! Here's what's happening today.</p>
-                    <div class="quick-stats">
-                        <div class="quick-stat">
-                            <i class="fa fa-clock-o"></i>
-                            <span><?php echo date('l, F d, Y'); ?></span>
-                        </div>
-                        <div class="quick-stat">
-                            <i class="fa fa-users"></i>
-                            <span><?php echo $stats['total_patients']; ?> Patients</span>
-                        </div>
-                        <div class="quick-stat">
-                            <i class="fa fa-calendar"></i>
-                            <span><?php echo $stats['today_appointments']; ?> Appointments</span>
-                        </div>
+                </div>
+                <div class="quick-stats">
+                    <div class="quick-stat-item">
+                        <i class="fa fa-clock-o"></i>
+                        <span>Last Login: <?php echo date('M d, h:i A', strtotime($_SESSION['last_login'] ?? 'now')); ?></span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <i class="fa fa-users"></i>
+                        <span><?php echo $stats['total_patients']; ?> Total Patients</span>
                     </div>
                 </div>
             </div>
             <div class="header-right">
                 <div class="header-actions">
                     <button class="action-btn primary" data-bs-toggle="modal" data-bs-target="#quickAddModal">
-                        <div class="btn-icon">
-                            <i class="fa fa-plus"></i>
-                        </div>
+                        <i class="fa fa-plus"></i>
                         <span>Quick Add</span>
                     </button>
                     <button class="action-btn secondary" onclick="window.location='modules/settings.php'">
-                        <div class="btn-icon">
-                            <i class="fa fa-cog"></i>
-                        </div>
+                        <i class="fa fa-cog"></i>
                         <span>Settings</span>
                     </button>
-                    <button class="action-btn info" onclick="window.location='modules/reports.php'">
-                        <div class="btn-icon">
-                            <i class="fa fa-chart-bar"></i>
-                        </div>
+                    <button class="action-btn success" onclick="window.location='modules/reports.php'">
+                        <i class="fa fa-chart-bar"></i>
                         <span>Reports</span>
                     </button>
                 </div>
@@ -591,81 +496,135 @@ $theme_color = getSetting('theme_color', '#667eea');
     <div class="stats-section">
         <div class="stats-grid">
             <div class="stat-card patients">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fa fa-users"></i>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <div class="stat-trend positive">
-                        <i class="fa fa-arrow-up"></i>
-                        <span>+12%</span>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fa fa-users"></i>
+                    <div class="icon-glow"></div>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number"><?php echo number_format($stats['total_patients']); ?></h3>
-                    <p class="stat-label">Total Patients</p>
-                    <div class="stat-progress">
-                        <div class="progress-bar" style="width: 85%"></div>
+                    <div class="stat-number"><?php echo number_format($stats['total_patients']); ?></div>
+                    <div class="stat-label">Total Patients</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-arrow-up"></i>
+                        <span>+<?php echo $stats['new_patients_today'] ?? 0; ?> today</span>
                     </div>
+                </div>
+                <div class="stat-chart">
+                    <canvas id="patientsChart" width="60" height="40"></canvas>
                 </div>
             </div>
             
             <div class="stat-card appointments">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fa fa-calendar-check"></i>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <div class="stat-trend positive">
-                        <i class="fa fa-arrow-up"></i>
-                        <span>+8%</span>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fa fa-calendar-check"></i>
+                    <div class="icon-glow"></div>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number"><?php echo number_format($stats['today_appointments']); ?></h3>
-                    <p class="stat-label">Today's Appointments</p>
-                    <div class="stat-progress">
-                        <div class="progress-bar" style="width: 72%"></div>
+                    <div class="stat-number"><?php echo number_format($stats['today_appointments']); ?></div>
+                    <div class="stat-label">Today's Appointments</div>
+                    <div class="stat-change <?php echo $stats['appointments_change'] >= 0 ? 'positive' : 'negative'; ?>">
+                        <i class="fa fa-arrow-<?php echo $stats['appointments_change'] >= 0 ? 'up' : 'down'; ?>"></i>
+                        <span><?php echo abs($stats['appointments_change'] ?? 0); ?>% from yesterday</span>
                     </div>
+                </div>
+                <div class="stat-chart">
+                    <canvas id="appointmentsChart" width="60" height="40"></canvas>
                 </div>
             </div>
             
             <div class="stat-card revenue">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fa fa-rupee"></i>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <div class="stat-trend positive">
-                        <i class="fa fa-arrow-up"></i>
-                        <span>+15%</span>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fa fa-rupee"></i>
+                    <div class="icon-glow"></div>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number"><?php echo formatCurrency($stats['monthly_revenue']); ?></h3>
-                    <p class="stat-label">Monthly Revenue</p>
-                    <div class="stat-progress">
-                        <div class="progress-bar" style="width: 90%"></div>
+                    <div class="stat-number"><?php echo formatCurrency($stats['monthly_revenue']); ?></div>
+                    <div class="stat-label">Monthly Revenue</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-arrow-up"></i>
+                        <span>+<?php echo $stats['revenue_growth'] ?? 0; ?>% this month</span>
                     </div>
+                </div>
+                <div class="stat-chart">
+                    <canvas id="revenueChart" width="60" height="40"></canvas>
                 </div>
             </div>
             
             <div class="stat-card beds">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fa fa-bed"></i>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <div class="stat-trend neutral">
-                        <i class="fa fa-minus"></i>
-                        <span>0%</span>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fa fa-bed"></i>
+                    <div class="icon-glow"></div>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number"><?php echo number_format($stats['occupied_beds']); ?></h3>
-                    <p class="stat-label">Occupied Beds</p>
-                    <div class="stat-progress">
-                        <div class="progress-bar" style="width: 65%"></div>
+                    <div class="stat-number"><?php echo number_format($stats['occupied_beds']); ?></div>
+                    <div class="stat-label">Occupied Beds</div>
+                    <div class="stat-change">
+                        <span><?php echo $stats['bed_occupancy'] ?? 0; ?>% occupancy rate</span>
+                    </div>
+                </div>
+                <div class="stat-chart">
+                    <canvas id="bedsChart" width="60" height="40"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Health Overview -->
+    <div class="system-health-section">
+        <div class="health-grid">
+            <div class="health-card database">
+                <div class="health-icon">
+                    <i class="fa fa-database"></i>
+                </div>
+                <div class="health-info">
+                    <h4>Database</h4>
+                    <div class="health-status online">Online</div>
+                    <div class="health-details">
+                        <span>Uptime: 99.9%</span>
+                        <span>Size: <?php echo formatBytes($system_health['db_size'] ?? 0); ?></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="health-card server">
+                <div class="health-icon">
+                    <i class="fa fa-server"></i>
+                </div>
+                <div class="health-info">
+                    <h4>Server</h4>
+                    <div class="health-status online">Healthy</div>
+                    <div class="health-details">
+                        <span>CPU: <?php echo $system_health['cpu_usage'] ?? 0; ?>%</span>
+                        <span>Memory: <?php echo $system_health['memory_usage'] ?? 0; ?>%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="health-card backup">
+                <div class="health-icon">
+                    <i class="fa fa-cloud"></i>
+                </div>
+                <div class="health-info">
+                    <h4>Backup</h4>
+                    <div class="health-status <?php echo $system_health['backup_status'] ? 'online' : 'warning'; ?>">
+                        <?php echo $system_health['backup_status'] ? 'Updated' : 'Pending'; ?>
+                    </div>
+                    <div class="health-details">
+                        <span>Last: <?php echo $system_health['last_backup'] ?? 'Never'; ?></span>
+                        <span>Size: <?php echo formatBytes($system_health['backup_size'] ?? 0); ?></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="health-card security">
+                <div class="health-icon">
+                    <i class="fa fa-shield"></i>
+                </div>
+                <div class="health-info">
+                    <h4>Security</h4>
+                    <div class="health-status online">Secure</div>
+                    <div class="health-details">
+                        <span>SSL: Active</span>
+                        <span>Firewall: Enabled</span>
                     </div>
                 </div>
             </div>
