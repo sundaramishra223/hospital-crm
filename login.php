@@ -181,49 +181,47 @@ if ($_POST) {
                 </div>
             </div>
             
-            <!-- Login Form (Hidden by default) -->
-            <div class="login-form-container" id="loginForm" style="display: none;">
-                <div class="form-header">
-                    <h3>Login to <span id="selectedRoleTitle">System</span></h3>
-                    <button class="btn-back" onclick="showRoleSelection()">
-                        <i class="fa fa-arrow-left"></i>
-                        Back to Role Selection
-                    </button>
-                </div>
-                
-                <form method="POST" class="login-form" id="loginFormElement">
-                    <input type="hidden" name="role" id="selectedRole" value="">
-                    
-                    <div class="form-group">
-                        <label for="username">
-                            <i class="fa fa-user"></i>
-                            Username
-                        </label>
-                        <input type="text" name="username" id="username" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">
-                            <i class="fa fa-lock"></i>
-                            Password
-                        </label>
-                        <div class="password-input">
-                            <input type="password" name="password" id="password" class="form-control" required>
-                            <button type="button" class="btn-toggle-password" onclick="togglePassword()">
-                                <i class="fa fa-eye"></i>
-                            </button>
+            <!-- Login Form Modal -->
+            <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content login-modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="loginModalLabel">Login to <span id="selectedRoleTitle">System</span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" class="login-form" id="loginFormElement">
+                                <input type="hidden" name="role" id="selectedRole" value="">
+                                <div class="form-group">
+                                    <label for="username">
+                                        <i class="fa fa-user"></i>
+                                        Username
+                                    </label>
+                                    <input type="text" name="username" id="username" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">
+                                        <i class="fa fa-lock"></i>
+                                        Password
+                                    </label>
+                                    <div class="password-input">
+                                        <input type="password" name="password" id="password" class="form-control" required>
+                                        <button type="button" class="btn-toggle-password" onclick="togglePassword()">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-login">
+                                    <i class="fa fa-sign-in"></i>
+                                    Login
+                                </button>
+                            </form>
+                            <div class="form-footer mt-3">
+                                <a href="forgot-password.php" class="forgot-link">Forgot Password?</a>
+                                <a href="register.php" class="register-link">Create Account</a>
+                            </div>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="btn-login">
-                        <i class="fa fa-sign-in"></i>
-                        Login
-                    </button>
-                </form>
-                
-                <div class="form-footer">
-                    <a href="forgot-password.php" class="forgot-link">Forgot Password?</a>
-                    <a href="register.php" class="register-link">Create Account</a>
                 </div>
             </div>
             
@@ -713,6 +711,24 @@ if ($_POST) {
             align-items: center;
         }
     }
+    /* Login Modal Custom Styles */
+    .login-modal-content {
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.15);
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(10px);
+    }
+    .login-modal-content .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .login-modal-content .modal-title {
+        font-weight: 700;
+        color: #667eea;
+    }
+    .login-modal-content .modal-body {
+        padding-top: 0;
+    }
     </style>
     
     <script src="assets/js/jquery-3.6.0.min.js"></script>
@@ -729,23 +745,14 @@ if ($_POST) {
         // Update the title
         document.getElementById('selectedRoleTitle').textContent = getRoleTitle(role);
         
-        // Hide role selection and show login form
-        document.getElementById('roleSelection').style.display = 'none';
-        document.getElementById('loginForm').style.display = 'block';
+        // Show the login modal
+        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
         
-        // Add animation
-        document.getElementById('loginForm').style.opacity = '0';
-        document.getElementById('loginForm').style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            document.getElementById('loginForm').style.transition = 'all 0.3s ease';
-            document.getElementById('loginForm').style.opacity = '1';
-            document.getElementById('loginForm').style.transform = 'translateY(0)';
-        }, 100);
-        
-        // Focus on username field
+        // Focus on username field after modal is shown
         setTimeout(() => {
             document.getElementById('username').focus();
-        }, 300);
+        }, 400);
     }
     
     function showRoleSelection() {
