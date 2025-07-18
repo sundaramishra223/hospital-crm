@@ -160,22 +160,24 @@ if ($_POST) {
                 <div class="role-cards">
                     <?php foreach ($roles as $role_key => $role_info): ?>
                         <?php if (in_array($role_key, $enabled_roles_array)): ?>
-                            <div class="role-card" data-role="<?php echo $role_key; ?>">
-                                <div class="role-card-header" style="background: linear-gradient(135deg, <?php echo $role_info['color']; ?> 0%, <?php echo adjustBrightness($role_info['color'], -20); ?> 100%);">
-                                    <div class="role-icon">
-                                        <i class="fa <?php echo $role_info['icon']; ?>"></i>
+                            <a href="login_<?php echo $role_key; ?>.php" class="role-card-link">
+                                <div class="role-card" data-role="<?php echo $role_key; ?>">
+                                    <div class="role-card-header" style="background: linear-gradient(135deg, <?php echo $role_info['color']; ?> 0%, <?php echo adjustBrightness($role_info['color'], -20); ?> 100%);">
+                                        <div class="role-icon">
+                                            <i class="fa <?php echo $role_info['icon']; ?>"></i>
+                                        </div>
+                                    </div>
+                                    <div class="role-card-body">
+                                        <h4 class="role-title"><?php echo $role_info['title']; ?></h4>
+                                    </div>
+                                    <div class="role-card-footer">
+                                        <span class="btn-select-role">
+                                            <i class="fa fa-sign-in"></i>
+                                            Login as <?php echo $role_info['title']; ?>
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="role-card-body">
-                                    <h4 class="role-title"><?php echo $role_info['title']; ?></h4>
-                                </div>
-                                <div class="role-card-footer">
-                                    <button class="btn-select-role" onclick="selectRole('<?php echo $role_key; ?>')">
-                                        <i class="fa fa-sign-in"></i>
-                                        Login as <?php echo $role_info['title']; ?>
-                                    </button>
-                                </div>
-                            </div>
+                            </a>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
