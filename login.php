@@ -191,21 +191,21 @@ if ($_POST) {
                         </div>
                         <div class="modal-body">
                             <form method="POST" class="login-form" id="loginFormElement">
-                                <input type="hidden" name="role" id="selectedRole" value="">
+                                <input type="hidden" name="role" id="modal-role" value="">
                                 <div class="form-group">
-                                    <label for="username">
+                                    <label for="modal-username">
                                         <i class="fa fa-user"></i>
                                         Username
                                     </label>
-                                    <input type="text" name="username" id="username" class="form-control" required>
+                                    <input type="text" name="username" id="modal-username" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="password">
+                                    <label for="modal-password">
                                         <i class="fa fa-lock"></i>
                                         Password
                                     </label>
                                     <div class="password-input">
-                                        <input type="password" name="password" id="password" class="form-control" required>
+                                        <input type="password" name="password" id="modal-password" class="form-control" required>
                                         <button type="button" class="btn-toggle-password" onclick="togglePassword()">
                                             <i class="fa fa-eye"></i>
                                         </button>
@@ -741,7 +741,7 @@ if ($_POST) {
         console.log('Selecting role:', role); // Debug log
         
         // Set the hidden input value
-        document.getElementById('selectedRole').value = role;
+        document.getElementById('modal-role').value = role;
         
         // Update the title
         document.getElementById('selectedRoleTitle').textContent = getRoleTitle(role);
@@ -752,7 +752,7 @@ if ($_POST) {
         
         // Focus on username field after modal is shown
         setTimeout(() => {
-            document.getElementById('username').focus();
+            document.getElementById('modal-username').focus();
         }, 400);
     }
     
@@ -777,7 +777,7 @@ if ($_POST) {
     }
     
     function togglePassword() {
-        const passwordInput = document.getElementById('password');
+        const passwordInput = document.getElementById('modal-password');
         const toggleBtn = document.querySelector('.btn-toggle-password i');
         
         if (passwordInput.type === 'password') {
@@ -797,9 +797,9 @@ if ($_POST) {
         const form = document.getElementById('loginFormElement');
         if (form) {
             form.addEventListener('submit', function(e) {
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value.trim();
-                const role = document.getElementById('selectedRole').value;
+                const username = document.getElementById('modal-username').value.trim();
+                const password = document.getElementById('modal-password').value.trim();
+                const role = document.getElementById('modal-role').value;
                 
                 console.log('Form submitted:', { username, password, role }); // Debug log
                 
@@ -833,13 +833,13 @@ if ($_POST) {
         });
         
         // Enter key support for form fields
-        document.getElementById('username').addEventListener('keypress', function(e) {
+        document.getElementById('modal-username').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                document.getElementById('password').focus();
+                document.getElementById('modal-password').focus();
             }
         });
         
-        document.getElementById('password').addEventListener('keypress', function(e) {
+        document.getElementById('modal-password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('loginFormElement').submit();
             }
