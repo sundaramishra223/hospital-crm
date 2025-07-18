@@ -1,8 +1,8 @@
 <?php
 require_once 'includes/functions.php';
 
-// Check if user is logged in and has pharmacy role
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'pharmacy') {
+// Check if user is logged in and has patient role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'patient') {
     header('Location: login.php');
     exit();
 }
@@ -11,98 +11,86 @@ $user_id = $_SESSION['user_id'];
 $hospital_id = $_SESSION['hospital_id'];
 $theme_color = getSetting('theme_color', '#667eea');
 
-// Get pharmacy information
-$pharmacy_info = getUserById($user_id);
+// Get patient information
+$patient_info = getUserById($user_id);
 
 // Get statistics
-$total_medicines = getTotalRecords('medicines', ['hospital_id' => $hospital_id]);
-$low_stock_medicines = getTotalRecords('medicines', ['hospital_id' => $hospital_id, 'stock' => 'low']);
-$today_prescriptions = getTotalRecords('prescriptions', ['DATE(created_at)' => date('Y-m-d'), 'hospital_id' => $hospital_id]);
-$pending_orders = getTotalRecords('medicine_orders', ['hospital_id' => $hospital_id, 'status' => 'pending']);
-$my_attendance = getAttendanceStatus($user_id, date('Y-m-d'));
+$total_appointments = getTotalRecords('appointments', ['patient_id' => $user_id]);
+$upcoming_appointments = getTotalRecords('appointments', ['patient_id' => $user_id, 'appointment_date >=' => date('Y-m-d'), 'status' => 'confirmed']);
+$completed_appointments = getTotalRecords('appointments', ['patient_id' => $user_id, 'status' => 'completed']);
+$pending_bills = getTotalRecords('bills', ['patient_id' => $user_id, 'status' => 'pending']);
 
-// Get recent activities and tasks
+// Get recent activities and appointments
 $recent_activities = getRecentActivities($user_id, 10);
-$upcoming_tasks = getUpcomingTasks($user_id, 5);
+$upcoming_appointments_list = getUpcomingAppointments($user_id, 5);
 
-// Get inventory alerts
-$inventory_alerts = getInventoryAlerts($hospital_id);
+// Get health alerts
+$health_alerts = getHealthAlerts($user_id);
 ?>
 
-<div class="pharmacy-dashboard" style="--primary-color: <?php echo $theme_color; ?>;">
+<div class="patient-dashboard" style="--primary-color: <?php echo $theme_color; ?>;">
     <!-- Modern Dashboard Header -->
     <div class="dashboard-header">
         <div class="header-content">
             <div class="header-left">
                 <div class="welcome-section">
                     <h1 class="dashboard-title">
-                        <i class="fa fa-pills"></i>
-                        Pharmacy Dashboard
+                        <i class="fa fa-user-injured"></i>
+                        Patient Dashboard
                     </h1>
-                    <p class="welcome-text">Welcome back, <strong><?php echo htmlspecialchars($pharmacy_info['name']); ?></strong>! Manage medications and ensure patient safety through proper pharmaceutical care.</p>
+                    <p class="welcome-text">Welcome back, <strong><?php echo htmlspecialchars($patient_info['name']); ?></strong>! Track your health journey and manage your medical appointments.</p>
                 </div>
                 <div class="quick-stats">
                     <div class="quick-stat-item">
-                        <i class="fa fa-clock-o"></i>
-                        <span>Last Login: <?php echo date('M d, h:i A'); ?></span>
+                        <i class="fa fa-calendar"></i>
+                        <span><?php echo $upcoming_appointments; ?> Upcoming</span>
                     </div>
                     <div class="quick-stat-item">
-                        <i class="fa fa-pills"></i>
-                        <span><?php echo $total_medicines; ?> Medicines</span>
+                        <i class="fa fa-check-circle"></i>
+                        <span><?php echo $completed_appointments; ?> Completed</span>
                     </div>
                     <div class="quick-stat-item">
-                        <i class="fa fa-exclamation-triangle"></i>
-                        <span><?php echo $low_stock_medicines; ?> Low Stock</span>
+                        <i class="fa fa-file-invoice"></i>
+                        <span><?php echo $pending_bills; ?> Pending Bills</span>
                     </div>
                 </div>
             </div>
             <div class="header-right">
                 <div class="header-actions">
-                    <button class="action-btn primary" onclick="markAttendance()">
-                        <i class="fa fa-clock"></i>
-                        <span>Mark Attendance</span>
+                    <button class="action-btn primary" onclick="location.href='modules/appointments.php?action=book'">
+                        <i class="fa fa-calendar-plus"></i>
+                        <span>Book Appointment</span>
                     </button>
-                    <button class="action-btn secondary" onclick="location.href='modules/medicines.php'">
-                        <i class="fa fa-pills"></i>
-                        <span>Medicines</span>
+                    <button class="action-btn secondary" onclick="location.href='modules/medical_records.php'">
+                        <i class="fa fa-file-medical"></i>
+                        <span>Medical Records</span>
                     </button>
-                    <button class="action-btn success" onclick="location.href='modules/prescriptions.php'">
-                        <i class="fa fa-prescription"></i>
-                        <span>Prescriptions</span>
+                    <button class="action-btn success" onclick="location.href='modules/billing.php'">
+                        <i class="fa fa-credit-card"></i>
+                        <span>Pay Bills</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Attendance Status Card -->
-    <div class="attendance-section">
-        <div class="attendance-card <?php echo $my_attendance ? 'checked-in' : 'not-checked'; ?>">
-            <div class="attendance-icon">
-                <i class="fa fa-clock"></i>
-                <div class="status-indicator <?php echo $my_attendance ? 'online' : 'offline'; ?>"></div>
+    <!-- Health Status Card -->
+    <div class="health-section">
+        <div class="health-card">
+            <div class="health-icon">
+                <i class="fa fa-heartbeat"></i>
+                <div class="health-indicator good"></div>
             </div>
-            <div class="attendance-info">
-                <h4>Today's Attendance</h4>
-                <?php if ($my_attendance): ?>
-                    <div class="attendance-status success">
-                        <i class="fa fa-check-circle"></i>
-                        <span>Checked In at <?php echo date('g:i A', strtotime($my_attendance['check_in_time'])); ?></span>
-                    </div>
-                    <div class="attendance-details">
-                        <span>Working Hours: 8 hrs</span>
-                        <span>Break Time: 1 hr</span>
-                    </div>
-                <?php else: ?>
-                    <div class="attendance-status warning">
-                        <i class="fa fa-clock"></i>
-                        <span>Not Checked In Yet</span>
-                    </div>
-                    <div class="attendance-details">
-                        <span>Shift: 8:00 AM - 4:00 PM</span>
-                        <span>Department: Pharmacy</span>
-                    </div>
-                <?php endif; ?>
+            <div class="health-info">
+                <h4>Health Status</h4>
+                <div class="health-status good">
+                    <i class="fa fa-check-circle"></i>
+                    <span>Good Health</span>
+                </div>
+                <div class="health-details">
+                    <span>Last Checkup: <?php echo date('M d, Y', strtotime('-30 days')); ?></span>
+                    <span>Next Follow-up: <?php echo date('M d, Y', strtotime('+30 days')); ?></span>
+                </div>
             </div>
         </div>
     </div>
@@ -110,107 +98,107 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     <!-- Enhanced Statistics Cards -->
     <div class="stats-section">
         <div class="stats-grid">
-            <div class="stat-card total-medicines">
+            <div class="stat-card total-appointments">
                 <div class="stat-icon">
-                    <i class="fa fa-pills"></i>
+                    <i class="fa fa-calendar"></i>
                     <div class="icon-glow"></div>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo number_format($total_medicines); ?></div>
-                    <div class="stat-label">Total Medicines</div>
+                    <div class="stat-number"><?php echo number_format($total_appointments); ?></div>
+                    <div class="stat-label">Total Appointments</div>
                     <div class="stat-change positive">
                         <i class="fa fa-arrow-up"></i>
-                        <span>+<?php echo rand(5, 15); ?> this week</span>
+                        <span>+<?php echo rand(2, 5); ?> this month</span>
                     </div>
                 </div>
                 <div class="stat-chart">
-                    <canvas id="totalMedicinesChart" width="60" height="30"></canvas>
+                    <canvas id="totalAppointmentsChart" width="60" height="30"></canvas>
                 </div>
             </div>
             
-            <div class="stat-card low-stock">
+            <div class="stat-card upcoming-appointments">
                 <div class="stat-icon">
-                    <i class="fa fa-exclamation-triangle"></i>
+                    <i class="fa fa-calendar-day"></i>
                     <div class="icon-glow"></div>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo number_format($low_stock_medicines); ?></div>
-                    <div class="stat-label">Low Stock Alerts</div>
+                    <div class="stat-number"><?php echo number_format($upcoming_appointments); ?></div>
+                    <div class="stat-label">Upcoming Appointments</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-clock"></i>
+                        <span>Scheduled visits</span>
+                    </div>
+                </div>
+                <div class="stat-chart">
+                    <canvas id="upcomingAppointmentsChart" width="60" height="30"></canvas>
+                </div>
+            </div>
+            
+            <div class="stat-card completed-appointments">
+                <div class="stat-icon">
+                    <i class="fa fa-check-circle"></i>
+                    <div class="icon-glow"></div>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><?php echo number_format($completed_appointments); ?></div>
+                    <div class="stat-label">Completed Visits</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-arrow-up"></i>
+                        <span><?php echo round(($completed_appointments / max($total_appointments, 1)) * 100); ?>% completion rate</span>
+                    </div>
+                </div>
+                <div class="stat-chart">
+                    <canvas id="completedAppointmentsChart" width="60" height="30"></canvas>
+                </div>
+            </div>
+            
+            <div class="stat-card pending-bills">
+                <div class="stat-icon">
+                    <i class="fa fa-file-invoice"></i>
+                    <div class="icon-glow"></div>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><?php echo number_format($pending_bills); ?></div>
+                    <div class="stat-label">Pending Bills</div>
                     <div class="stat-change warning">
                         <i class="fa fa-exclamation"></i>
-                        <span>Needs attention</span>
+                        <span>Requires attention</span>
                     </div>
                 </div>
                 <div class="stat-chart">
-                    <canvas id="lowStockChart" width="60" height="30"></canvas>
-                </div>
-            </div>
-            
-            <div class="stat-card prescriptions">
-                <div class="stat-icon">
-                    <i class="fa fa-prescription"></i>
-                    <div class="icon-glow"></div>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number"><?php echo number_format($today_prescriptions); ?></div>
-                    <div class="stat-label">Today's Prescriptions</div>
-                    <div class="stat-change positive">
-                        <i class="fa fa-arrow-up"></i>
-                        <span>+<?php echo rand(2, 8); ?> from yesterday</span>
-                    </div>
-                </div>
-                <div class="stat-chart">
-                    <canvas id="prescriptionsChart" width="60" height="30"></canvas>
-                </div>
-            </div>
-            
-            <div class="stat-card pending-orders">
-                <div class="stat-icon">
-                    <i class="fa fa-shopping-cart"></i>
-                    <div class="icon-glow"></div>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number"><?php echo number_format($pending_orders); ?></div>
-                    <div class="stat-label">Pending Orders</div>
-                    <div class="stat-change warning">
-                        <i class="fa fa-clock"></i>
-                        <span>Awaiting processing</span>
-                    </div>
-                </div>
-                <div class="stat-chart">
-                    <canvas id="pendingOrdersChart" width="60" height="30"></canvas>
+                    <canvas id="pendingBillsChart" width="60" height="30"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Inventory Alerts Section -->
-    <div class="inventory-section">
+    <!-- Health Alerts Section -->
+    <div class="alerts-section">
         <div class="section-header">
-            <h3>Inventory Alerts</h3>
-            <p>Monitor critical stock levels and expiring medications</p>
+            <h3>Health Alerts</h3>
+            <p>Important health reminders and notifications</p>
         </div>
-        <div class="inventory-grid">
-            <?php if (!empty($inventory_alerts)): ?>
-                <?php foreach (array_slice($inventory_alerts, 0, 4) as $alert): ?>
-                    <div class="inventory-card <?php echo $alert['type']; ?>">
-                        <div class="inventory-icon">
-                            <i class="fa fa-<?php echo getInventoryIcon($alert['type']); ?>"></i>
+        <div class="alerts-grid">
+            <?php if (!empty($health_alerts)): ?>
+                <?php foreach (array_slice($health_alerts, 0, 4) as $alert): ?>
+                    <div class="alert-card <?php echo $alert['type']; ?>">
+                        <div class="alert-icon">
+                            <i class="fa fa-<?php echo getHealthIcon($alert['type']); ?>"></i>
                             <div class="alert-badge <?php echo $alert['type']; ?>">
                                 <?php echo ucfirst($alert['type']); ?>
                             </div>
                         </div>
-                        <div class="inventory-content">
-                            <h4><?php echo $alert['medicine_name']; ?></h4>
+                        <div class="alert-content">
+                            <h4><?php echo $alert['title']; ?></h4>
                             <p><?php echo $alert['description']; ?></p>
-                            <div class="inventory-stats">
-                                <div class="stat-item">
-                                    <i class="fa fa-boxes"></i>
-                                    <span>Current Stock: <?php echo $alert['current_stock']; ?></span>
-                                </div>
+                            <div class="alert-stats">
                                 <div class="stat-item">
                                     <i class="fa fa-calendar"></i>
-                                    <span>Expiry: <?php echo date('M d, Y', strtotime($alert['expiry_date'])); ?></span>
+                                    <span>Due: <?php echo date('M d, Y', strtotime($alert['due_date'])); ?></span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fa fa-user-md"></i>
+                                    <span>Dr. <?php echo $alert['doctor_name']; ?></span>
                                 </div>
                             </div>
                         </div>
@@ -219,7 +207,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
             <?php else: ?>
                 <div class="no-alerts">
                     <i class="fa fa-check-circle"></i>
-                    <p>No inventory alerts at the moment.</p>
+                    <p>No health alerts at the moment.</p>
                 </div>
             <?php endif; ?>
         </div>
@@ -229,16 +217,42 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     <div class="actions-section">
         <div class="section-header">
             <h3>Quick Actions</h3>
-            <p>Access frequently used pharmacy features quickly</p>
+            <p>Access frequently used patient features quickly</p>
         </div>
         <div class="actions-grid">
-            <a href="modules/medicines.php" class="action-card">
+            <a href="modules/appointments.php?action=book" class="action-card">
                 <div class="action-icon">
-                    <i class="fa fa-pills"></i>
+                    <i class="fa fa-calendar-plus"></i>
                 </div>
                 <div class="action-content">
-                    <h4>Medicines</h4>
-                    <p>Manage medicine inventory and stock</p>
+                    <h4>Book Appointment</h4>
+                    <p>Schedule a new medical appointment</p>
+                </div>
+                <div class="action-arrow">
+                    <i class="fa fa-arrow-right"></i>
+                </div>
+            </a>
+            
+            <a href="modules/medical_records.php" class="action-card">
+                <div class="action-icon">
+                    <i class="fa fa-file-medical"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Medical Records</h4>
+                    <p>View your medical history and reports</p>
+                </div>
+                <div class="action-arrow">
+                    <i class="fa fa-arrow-right"></i>
+                </div>
+            </a>
+            
+            <a href="modules/billing.php" class="action-card">
+                <div class="action-icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Pay Bills</h4>
+                    <p>View and pay your medical bills</p>
                 </div>
                 <div class="action-arrow">
                     <i class="fa fa-arrow-right"></i>
@@ -251,33 +265,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
                 </div>
                 <div class="action-content">
                     <h4>Prescriptions</h4>
-                    <p>Process and dispense prescriptions</p>
-                </div>
-                <div class="action-arrow">
-                    <i class="fa fa-arrow-right"></i>
-                </div>
-            </a>
-            
-            <a href="modules/orders.php" class="action-card">
-                <div class="action-icon">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-                <div class="action-content">
-                    <h4>Orders</h4>
-                    <p>Manage medicine orders and suppliers</p>
-                </div>
-                <div class="action-arrow">
-                    <i class="fa fa-arrow-right"></i>
-                </div>
-            </a>
-            
-            <a href="modules/reports.php" class="action-card">
-                <div class="action-icon">
-                    <i class="fa fa-chart-line"></i>
-                </div>
-                <div class="action-content">
-                    <h4>Reports</h4>
-                    <p>Generate pharmacy reports and analytics</p>
+                    <p>View your current prescriptions</p>
                 </div>
                 <div class="action-arrow">
                     <i class="fa fa-arrow-right"></i>
@@ -286,7 +274,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
         </div>
     </div>
 
-    <!-- Recent Activities & Tasks -->
+    <!-- Recent Activities & Upcoming Appointments -->
     <div class="activities-section">
         <div class="activities-grid">
             <div class="activity-card">
@@ -318,28 +306,28 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
                 </div>
             </div>
             
-            <div class="tasks-card">
+            <div class="appointments-card">
                 <div class="card-header">
-                    <h4><i class="fa fa-tasks"></i> Upcoming Tasks</h4>
-                    <a href="modules/tasks.php" class="view-all">View All</a>
+                    <h4><i class="fa fa-calendar"></i> Upcoming Appointments</h4>
+                    <a href="modules/appointments.php" class="view-all">View All</a>
                 </div>
                 <div class="card-body">
-                    <div class="tasks-list">
-                        <?php if (!empty($upcoming_tasks)): ?>
-                            <?php foreach (array_slice($upcoming_tasks, 0, 5) as $task): ?>
-                                <div class="task-item">
-                                    <div class="task-status <?php echo $task['priority']; ?>"></div>
-                                    <div class="task-content">
-                                        <h5><?php echo $task['title']; ?></h5>
-                                        <p><?php echo $task['description']; ?></p>
-                                        <span class="task-time">Due: <?php echo date('M d, h:i A', strtotime($task['due_date'])); ?></span>
+                    <div class="appointments-list">
+                        <?php if (!empty($upcoming_appointments_list)): ?>
+                            <?php foreach (array_slice($upcoming_appointments_list, 0, 5) as $appointment): ?>
+                                <div class="appointment-item">
+                                    <div class="appointment-status <?php echo $appointment['status']; ?>"></div>
+                                    <div class="appointment-content">
+                                        <h5><?php echo $appointment['doctor_name']; ?></h5>
+                                        <p><?php echo $appointment['department']; ?> - <?php echo $appointment['reason']; ?></p>
+                                        <span class="appointment-time"><?php echo date('M d, h:i A', strtotime($appointment['appointment_date'])); ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="no-tasks">
-                                <i class="fa fa-check-circle"></i>
-                                <p>No pending tasks!</p>
+                            <div class="no-appointments">
+                                <i class="fa fa-calendar-times"></i>
+                                <p>No upcoming appointments!</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -350,15 +338,15 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
 </div>
 
 <style>
-/* Modern Pharmacy Dashboard Styles */
-.pharmacy-dashboard {
+/* Modern Patient Dashboard Styles */
+.patient-dashboard {
     padding: 20px;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.dark-mode .pharmacy-dashboard {
+.dark-mode .patient-dashboard {
     background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
 }
 
@@ -490,12 +478,12 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Attendance Section */
-.attendance-section {
+/* Health Section */
+.health-section {
     margin-bottom: 30px;
 }
 
-.attendance-card {
+.health-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 20px;
@@ -508,20 +496,16 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     transition: all 0.3s ease;
 }
 
-.dark-mode .attendance-card {
+.dark-mode .health-card {
     background: rgba(26, 26, 26, 0.95);
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-.attendance-card.checked-in {
+.health-card {
     border-left: 4px solid #28a745;
 }
 
-.attendance-card.not-checked {
-    border-left: 4px solid #ffc107;
-}
-
-.attendance-icon {
+.health-icon {
     position: relative;
     width: 60px;
     height: 60px;
@@ -534,7 +518,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     color: white;
 }
 
-.status-indicator {
+.health-indicator {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -544,30 +528,34 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     border: 3px solid white;
 }
 
-.status-indicator.online {
+.health-indicator.good {
     background: #28a745;
 }
 
-.status-indicator.offline {
+.health-indicator.warning {
     background: #ffc107;
 }
 
-.attendance-info {
+.health-indicator.critical {
+    background: #dc3545;
+}
+
+.health-info {
     flex: 1;
 }
 
-.attendance-info h4 {
+.health-info h4 {
     margin: 0 0 10px 0;
     font-size: 18px;
     font-weight: 600;
     color: #333;
 }
 
-.dark-mode .attendance-info h4 {
+.dark-mode .health-info h4 {
     color: #fff;
 }
 
-.attendance-status {
+.health-status {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -576,25 +564,29 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     margin-bottom: 10px;
 }
 
-.attendance-status.success {
+.health-status.good {
     color: #28a745;
 }
 
-.attendance-status.warning {
+.health-status.warning {
     color: #ffc107;
 }
 
-.attendance-details {
+.health-status.critical {
+    color: #dc3545;
+}
+
+.health-details {
     display: flex;
     gap: 20px;
 }
 
-.attendance-details span {
+.health-details span {
     font-size: 12px;
     color: #666;
 }
 
-.dark-mode .attendance-details span {
+.dark-mode .health-details span {
     color: #ccc;
 }
 
@@ -631,20 +623,20 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
-.stat-card.total-medicines {
+.stat-card.total-appointments {
     border-left: 4px solid #667eea;
 }
 
-.stat-card.low-stock {
-    border-left: 4px solid #ffc107;
+.stat-card.upcoming-appointments {
+    border-left: 4px solid #17a2b8;
 }
 
-.stat-card.prescriptions {
+.stat-card.completed-appointments {
     border-left: 4px solid #28a745;
 }
 
-.stat-card.pending-orders {
-    border-left: 4px solid #17a2b8;
+.stat-card.pending-bills {
+    border-left: 4px solid #ffc107;
 }
 
 .stat-icon {
@@ -660,20 +652,20 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     margin-bottom: 20px;
 }
 
-.stat-card.total-medicines .stat-icon {
+.stat-card.total-appointments .stat-icon {
     background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
-.stat-card.low-stock .stat-icon {
-    background: linear-gradient(135deg, #ffc107, #fd7e14);
+.stat-card.upcoming-appointments .stat-icon {
+    background: linear-gradient(135deg, #17a2b8, #20c997);
 }
 
-.stat-card.prescriptions .stat-icon {
+.stat-card.completed-appointments .stat-icon {
     background: linear-gradient(135deg, #28a745, #20c997);
 }
 
-.stat-card.pending-orders .stat-icon {
-    background: linear-gradient(135deg, #17a2b8, #20c997);
+.stat-card.pending-bills .stat-icon {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
 }
 
 .icon-glow {
@@ -747,8 +739,8 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     opacity: 0.3;
 }
 
-/* Inventory Section */
-.inventory-section {
+/* Alerts Section */
+.alerts-section {
     margin-bottom: 30px;
 }
 
@@ -777,13 +769,13 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     color: #ccc;
 }
 
-.inventory-grid {
+.alerts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
 }
 
-.inventory-card {
+.alert-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 20px;
@@ -794,33 +786,33 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     position: relative;
 }
 
-.dark-mode .inventory-card {
+.dark-mode .alert-card {
     background: rgba(26, 26, 26, 0.95);
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-.inventory-card:hover {
+.alert-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
-.inventory-card.low_stock {
+.alert-card.reminder {
+    border-left: 4px solid #17a2b8;
+}
+
+.alert-card.warning {
     border-left: 4px solid #ffc107;
 }
 
-.inventory-card.expiring {
+.alert-card.urgent {
     border-left: 4px solid #dc3545;
 }
 
-.inventory-card.out_of_stock {
-    border-left: 4px solid #dc3545;
+.alert-card.follow_up {
+    border-left: 4px solid #28a745;
 }
 
-.inventory-card.expired {
-    border-left: 4px solid #6c757d;
-}
-
-.inventory-icon {
+.alert-icon {
     position: relative;
     width: 60px;
     height: 60px;
@@ -846,46 +838,46 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     text-transform: uppercase;
 }
 
-.alert-badge.low_stock {
+.alert-badge.reminder {
+    background: #17a2b8;
+}
+
+.alert-badge.warning {
     background: #ffc107;
     color: #333;
 }
 
-.alert-badge.expiring {
+.alert-badge.urgent {
     background: #dc3545;
 }
 
-.alert-badge.out_of_stock {
-    background: #dc3545;
+.alert-badge.follow_up {
+    background: #28a745;
 }
 
-.alert-badge.expired {
-    background: #6c757d;
-}
-
-.inventory-content h4 {
+.alert-content h4 {
     font-size: 18px;
     font-weight: 600;
     color: #333;
     margin: 0 0 10px 0;
 }
 
-.dark-mode .inventory-content h4 {
+.dark-mode .alert-content h4 {
     color: #fff;
 }
 
-.inventory-content p {
+.alert-content p {
     font-size: 14px;
     color: #666;
     margin: 0 0 15px 0;
     line-height: 1.5;
 }
 
-.dark-mode .inventory-content p {
+.dark-mode .alert-content p {
     color: #ccc;
 }
 
-.inventory-stats {
+.alert-stats {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -1030,7 +1022,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     gap: 20px;
 }
 
-.activity-card, .tasks-card {
+.activity-card, .appointments-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 20px;
@@ -1040,12 +1032,12 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     transition: all 0.3s ease;
 }
 
-.dark-mode .activity-card, .dark-mode .tasks-card {
+.dark-mode .activity-card, .dark-mode .appointments-card {
     background: rgba(26, 26, 26, 0.95);
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-.activity-card:hover, .tasks-card:hover {
+.activity-card:hover, .appointments-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
@@ -1078,12 +1070,12 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     font-weight: 500;
 }
 
-.activity-list, .tasks-list {
+.activity-list, .appointments-list {
     max-height: 300px;
     overflow-y: auto;
 }
 
-.activity-item, .task-item {
+.activity-item, .appointment-item {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -1091,11 +1083,11 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.dark-mode .activity-item, .dark-mode .task-item {
+.dark-mode .activity-item, .dark-mode .appointment-item {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.activity-item:last-child, .task-item:last-child {
+.activity-item:last-child, .appointment-item:last-child {
     border-bottom: none;
 }
 
@@ -1140,77 +1132,77 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
     color: #ccc;
 }
 
-.task-status {
+.appointment-status {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
-.task-status.high {
-    background: #dc3545;
-}
-
-.task-status.medium {
-    background: #ffc107;
-}
-
-.task-status.low {
+.appointment-status.confirmed {
     background: #28a745;
 }
 
-.task-content {
+.appointment-status.pending {
+    background: #ffc107;
+}
+
+.appointment-status.cancelled {
+    background: #dc3545;
+}
+
+.appointment-content {
     flex: 1;
 }
 
-.task-content h5 {
+.appointment-content h5 {
     margin: 0 0 5px 0;
     font-size: 14px;
     font-weight: 600;
     color: #333;
 }
 
-.dark-mode .task-content h5 {
+.dark-mode .appointment-content h5 {
     color: #fff;
 }
 
-.task-content p {
+.appointment-content p {
     margin: 0 0 5px 0;
     font-size: 12px;
     color: #666;
     line-height: 1.4;
 }
 
-.dark-mode .task-content p {
+.dark-mode .appointment-content p {
     color: #ccc;
 }
 
-.task-time {
+.appointment-time {
     font-size: 11px;
     color: #666;
 }
 
-.dark-mode .task-time {
+.dark-mode .appointment-time {
     color: #ccc;
 }
 
-.no-activities, .no-tasks {
+.no-activities, .no-appointments {
     text-align: center;
     padding: 30px 20px;
     color: #666;
 }
 
-.dark-mode .no-activities, .dark-mode .no-tasks {
+.dark-mode .no-activities, .dark-mode .no-appointments {
     color: #ccc;
 }
 
-.no-activities i, .no-tasks i {
+.no-activities i, .no-appointments i {
     font-size: 48px;
     margin-bottom: 15px;
     opacity: 0.5;
 }
 
-.no-activities p, .no-tasks p {
+.no-activities p, .no-appointments p {
     margin: 0;
     font-size: 14px;
 }
@@ -1221,7 +1213,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
     
-    .inventory-grid {
+    .alerts-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
     
@@ -1235,7 +1227,7 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
 }
 
 @media (max-width: 991.98px) {
-    .pharmacy-dashboard {
+    .patient-dashboard {
         padding: 15px;
     }
     
@@ -1303,20 +1295,20 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
         grid-template-columns: 1fr;
     }
     
-    .attendance-card {
+    .health-card {
         flex-direction: column;
         text-align: center;
         gap: 15px;
     }
     
-    .attendance-details {
+    .health-details {
         flex-direction: column;
         gap: 5px;
     }
 }
 
 @media (max-width: 480px) {
-    .pharmacy-dashboard {
+    .patient-dashboard {
         padding: 10px;
     }
     
@@ -1351,29 +1343,6 @@ $inventory_alerts = getInventoryAlerts($hospital_id);
 </style>
 
 <script>
-// Mark attendance function
-function markAttendance() {
-    fetch('api/mark-attendance.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({action: 'check_in'})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Error marking attendance: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.log('Error:', error);
-        alert('Error marking attendance');
-    });
-}
-
 // Enhanced dashboard functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize mini charts
@@ -1385,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeMiniCharts() {
     // Simple mini charts for statistics
-    const charts = ['totalMedicinesChart', 'lowStockChart', 'prescriptionsChart', 'pendingOrdersChart'];
+    const charts = ['totalAppointmentsChart', 'upcomingAppointmentsChart', 'completedAppointmentsChart', 'pendingBillsChart'];
     
     charts.forEach(chartId => {
         const canvas = document.getElementById(chartId);
@@ -1403,7 +1372,7 @@ function initializeMiniCharts() {
 
 function addHoverEffects() {
     // Add smooth hover effects to cards
-    const cards = document.querySelectorAll('.stat-card, .action-card, .activity-card, .tasks-card, .inventory-card');
+    const cards = document.querySelectorAll('.stat-card, .action-card, .activity-card, .appointments-card, .alert-card');
     
     cards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -1416,14 +1385,14 @@ function addHoverEffects() {
     });
 }
 
-// Helper function to get inventory icon
-function getInventoryIcon(type) {
+// Helper function to get health icon
+function getHealthIcon(type) {
     const icons = {
-        'low_stock': 'exclamation-triangle',
-        'expiring': 'calendar-times',
-        'out_of_stock': 'times-circle',
-        'expired': 'ban',
-        'default': 'exclamation'
+        'reminder': 'bell',
+        'warning': 'exclamation-triangle',
+        'urgent': 'exclamation-circle',
+        'follow_up': 'calendar-check',
+        'default': 'info-circle'
     };
     return icons[type] || icons.default;
 }
