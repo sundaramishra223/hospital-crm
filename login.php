@@ -234,8 +234,8 @@ if ($_POST) {
                     <a href="support.php">Support</a>
                 </div>
             </div>
-        </div>
-    </div>
+        </div> <!-- .login-content -->
+    </div> <!-- .login-container -->
     
     <style>
     /* Modern Login Page Styles */
