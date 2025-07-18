@@ -17,74 +17,59 @@ if (isset($_GET['logout']) && $_GET['logout'] == '1') {
     $success_message = 'You have been successfully logged out.';
 }
 
-// Get enabled roles from settings
-$enabled_roles = getSetting('enabled_roles', 'admin,doctor,patient');
+// Get enabled roles from settings (default: all roles enabled)
+$enabled_roles = getSetting('enabled_roles', 'admin,doctor,patient,nurse,staff,pharmacy,lab_tech,receptionist,intern');
 $enabled_roles_array = explode(',', $enabled_roles);
 
-// Define role information
+// Get background image from settings
+$login_bg_image = getSetting('login_bg_image', '');
+
+// Define role information (simplified without features)
 $roles = [
     'admin' => [
         'title' => 'Administrator',
         'icon' => 'fa-user-shield',
-        'color' => '#667eea',
-        'description' => 'Full system access and management',
-        'features' => ['User Management', 'System Settings', 'Reports', 'Analytics']
+        'color' => '#667eea'
     ],
     'doctor' => [
         'title' => 'Doctor',
         'icon' => 'fa-user-md',
-        'color' => '#38b2ac',
-        'description' => 'Patient care and medical records',
-        'features' => ['Patient Management', 'Appointments', 'Prescriptions', 'Medical Records']
+        'color' => '#38b2ac'
     ],
     'patient' => [
         'title' => 'Patient',
         'icon' => 'fa-user',
-        'color' => '#ed8936',
-        'description' => 'Access to personal health information',
-        'features' => ['Appointments', 'Medical History', 'Billing', 'Prescriptions']
+        'color' => '#ed8936'
     ],
     'nurse' => [
         'title' => 'Nurse',
         'icon' => 'fa-plus-square',
-        'color' => '#9f7aea',
-        'description' => 'Patient care and ward management',
-        'features' => ['Patient Care', 'Vitals Monitoring', 'Medicine Log', 'Ward Management']
+        'color' => '#9f7aea'
     ],
     'staff' => [
         'title' => 'Staff',
         'icon' => 'fa-users',
-        'color' => '#f56565',
-        'description' => 'General hospital operations',
-        'features' => ['Operations', 'Support', 'Maintenance', 'Logistics']
+        'color' => '#f56565'
     ],
     'pharmacy' => [
         'title' => 'Pharmacy',
         'icon' => 'fa-pills',
-        'color' => '#48bb78',
-        'description' => 'Medicine and inventory management',
-        'features' => ['Medicine Inventory', 'Prescriptions', 'Stock Management', 'Billing']
+        'color' => '#48bb78'
     ],
     'lab_tech' => [
         'title' => 'Lab Technician',
         'icon' => 'fa-flask',
-        'color' => '#ed64a6',
-        'description' => 'Laboratory tests and results',
-        'features' => ['Test Requests', 'Results Upload', 'Lab Reports', 'Quality Control']
+        'color' => '#ed64a6'
     ],
     'receptionist' => [
         'title' => 'Receptionist',
         'icon' => 'fa-desk',
-        'color' => '#4299e1',
-        'description' => 'Patient registration and appointments',
-        'features' => ['Patient Registration', 'Appointments', 'Visitor Management', 'Information']
+        'color' => '#4299e1'
     ],
     'intern' => [
         'title' => 'Intern',
         'icon' => 'fa-graduation-cap',
-        'color' => '#805ad5',
-        'description' => 'Learning and training access',
-        'features' => ['Learning Resources', 'Assignments', 'Supervision', 'Training']
+        'color' => '#805ad5'
     ]
 ];
 
@@ -129,15 +114,19 @@ if ($_POST) {
 <body class="login-page">
     
     <div class="login-container">
-        <!-- Background Animation -->
+        <!-- Background Image/Animation -->
         <div class="background-animation">
-            <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-                <div class="shape shape-4"></div>
-                <div class="shape shape-5"></div>
-            </div>
+            <?php if ($login_bg_image): ?>
+                <div class="bg-image" style="background-image: url('<?php echo $login_bg_image; ?>');"></div>
+            <?php else: ?>
+                <div class="floating-shapes">
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                    <div class="shape shape-3"></div>
+                    <div class="shape shape-4"></div>
+                    <div class="shape shape-5"></div>
+                </div>
+            <?php endif; ?>
         </div>
         
         <div class="login-content">
@@ -166,7 +155,7 @@ if ($_POST) {
             <?php endif; ?>
             
             <!-- Role Selection Cards -->
-            <div class="role-selection">
+            <div class="role-selection" id="roleSelection">
                 <h3 class="section-title">Select Your Role</h3>
                 <div class="role-cards">
                     <?php foreach ($roles as $role_key => $role_info): ?>
@@ -179,12 +168,6 @@ if ($_POST) {
                                 </div>
                                 <div class="role-card-body">
                                     <h4 class="role-title"><?php echo $role_info['title']; ?></h4>
-                                    <p class="role-description"><?php echo $role_info['description']; ?></p>
-                                    <div class="role-features">
-                                        <?php foreach ($role_info['features'] as $feature): ?>
-                                            <span class="feature-tag"><?php echo $feature; ?></span>
-                                        <?php endforeach; ?>
-                                    </div>
                                 </div>
                                 <div class="role-card-footer">
                                     <button class="btn-select-role" onclick="selectRole('<?php echo $role_key; ?>')">
@@ -208,7 +191,7 @@ if ($_POST) {
                     </button>
                 </div>
                 
-                <form method="POST" class="login-form">
+                <form method="POST" class="login-form" id="loginFormElement">
                     <input type="hidden" name="role" id="selectedRole" value="">
                     
                     <div class="form-group">
@@ -267,7 +250,7 @@ if ($_POST) {
         overflow-x: hidden;
     }
     
-    /* Background Animation */
+    /* Background Animation/Image */
     .background-animation {
         position: fixed;
         top: 0;
@@ -276,6 +259,15 @@ if ($_POST) {
         height: 100%;
         z-index: 1;
         overflow: hidden;
+    }
+    
+    .bg-image {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.3;
     }
     
     .floating-shapes {
@@ -432,7 +424,7 @@ if ($_POST) {
     
     .role-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 25px;
         margin-bottom: 30px;
     }
@@ -444,6 +436,7 @@ if ($_POST) {
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: 1px solid rgba(0, 0, 0, 0.05);
+        cursor: pointer;
     }
     
     .role-card:hover {
@@ -482,38 +475,14 @@ if ($_POST) {
     
     .role-card-body {
         padding: 25px;
+        text-align: center;
     }
     
     .role-title {
         font-size: 20px;
         font-weight: 600;
         color: #2d3748;
-        margin: 0 0 10px 0;
-        text-align: center;
-    }
-    
-    .role-description {
-        color: #718096;
-        text-align: center;
-        margin: 0 0 20px 0;
-        line-height: 1.6;
-    }
-    
-    .role-features {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        justify-content: center;
-    }
-    
-    .feature-tag {
-        background: #f7fafc;
-        color: #4a5568;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        border: 1px solid #e2e8f0;
+        margin: 0;
     }
     
     .role-card-footer {
@@ -752,9 +721,16 @@ if ($_POST) {
     <script>
     // Role selection functionality
     function selectRole(role) {
+        console.log('Selecting role:', role); // Debug log
+        
+        // Set the hidden input value
         document.getElementById('selectedRole').value = role;
+        
+        // Update the title
         document.getElementById('selectedRoleTitle').textContent = getRoleTitle(role);
-        document.querySelector('.role-selection').style.display = 'none';
+        
+        // Hide role selection and show login form
+        document.getElementById('roleSelection').style.display = 'none';
         document.getElementById('loginForm').style.display = 'block';
         
         // Add animation
@@ -765,10 +741,15 @@ if ($_POST) {
             document.getElementById('loginForm').style.opacity = '1';
             document.getElementById('loginForm').style.transform = 'translateY(0)';
         }, 100);
+        
+        // Focus on username field
+        setTimeout(() => {
+            document.getElementById('username').focus();
+        }, 300);
     }
     
     function showRoleSelection() {
-        document.querySelector('.role-selection').style.display = 'block';
+        document.getElementById('roleSelection').style.display = 'block';
         document.getElementById('loginForm').style.display = 'none';
     }
     
@@ -800,26 +781,40 @@ if ($_POST) {
         }
     }
     
-    // Enhanced form validation
+    // Enhanced form validation and functionality
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('.login-form');
+        console.log('DOM loaded'); // Debug log
+        
+        // Form submission
+        const form = document.getElementById('loginFormElement');
         if (form) {
             form.addEventListener('submit', function(e) {
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
                 const role = document.getElementById('selectedRole').value;
                 
+                console.log('Form submitted:', { username, password, role }); // Debug log
+                
                 if (!username || !password || !role) {
                     e.preventDefault();
                     alert('Please fill in all fields');
                     return false;
                 }
+                
+                // Form is valid, let it submit
+                console.log('Form is valid, submitting...'); // Debug log
             });
         }
         
-        // Add hover effects to role cards
+        // Add click handlers to role cards
         const roleCards = document.querySelectorAll('.role-card');
         roleCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const role = this.getAttribute('data-role');
+                selectRole(role);
+            });
+            
+            // Hover effects
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-10px) scale(1.02)';
             });
@@ -827,6 +822,19 @@ if ($_POST) {
             card.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0) scale(1)';
             });
+        });
+        
+        // Enter key support for form fields
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('password').focus();
+            }
+        });
+        
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginFormElement').submit();
+            }
         });
     });
     </script>
