@@ -246,57 +246,54 @@ function getMenuItems($role) {
 
 $menu_items = getMenuItems($user_role);
 ?>
-
-<aside class="main-sidebar" id="mainSidebar">
-    <div class="sidebar-wrapper">
+<!-- Modern Sidebar Start -->
+<aside class="main-sidebar bg-white shadow-sm d-flex flex-column" id="mainSidebar">
+    <div class="sidebar-wrapper flex-grow-1 d-flex flex-column">
         <!-- User Profile Section -->
-        <div class="sidebar-user">
-            <div class="user-avatar">
-                <img src="<?php echo $user_details['profile_image'] ?? 'assets/images/default-avatar.png'; ?>" alt="Profile">
+        <div class="sidebar-user d-flex align-items-center p-3 border-bottom">
+            <div class="user-avatar me-3">
+                <img src="<?php echo $user_details['profile_image'] ?? 'assets/images/default-avatar.png'; ?>" alt="Profile" class="rounded-circle border border-2" width="48" height="48">
             </div>
             <div class="user-info">
-                <h6><?php echo $user_details['name']; ?></h6>
-                <small><?php echo ucfirst($_SESSION['user_role']); ?></small>
+                <div class="fw-bold text-dark small mb-1"><?php echo $user_details['name']; ?></div>
+                <div class="text-muted" style="font-size: 13px;"> <?php echo ucfirst($_SESSION['user_role']); ?> </div>
             </div>
         </div>
-        
         <!-- Navigation Menu -->
-        <nav class="sidebar-nav">
-            <ul class="nav-list">
+        <nav class="sidebar-nav flex-grow-1">
+            <ul class="nav flex-column nav-pills py-2">
                 <?php foreach ($menu_items as $item): ?>
                     <li class="nav-item <?php echo isset($item['submenu']) ? 'has-submenu' : ''; ?>">
                         <?php if (isset($item['submenu'])): ?>
-                            <a href="#" class="nav-link" data-toggle="submenu">
-                                <i class="fa <?php echo $item['icon']; ?>"></i>
-                                <span class="nav-text"><?php echo $item['title']; ?></span>
-                                <i class="fa fa-chevron-down submenu-arrow"></i>
+                            <a href="#" class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" data-bs-target="#submenu-<?php echo md5($item['title']); ?>" aria-expanded="false">
+                                <span><i class="fa <?php echo $item['icon']; ?> me-2"></i><?php echo $item['title']; ?></span>
+                                <i class="fa fa-chevron-down"></i>
                             </a>
-                            <ul class="submenu">
+                            <ul class="collapse list-unstyled ps-4" id="submenu-<?php echo md5($item['title']); ?>">
                                 <?php foreach ($item['submenu'] as $subitem): ?>
                                     <li>
-                                        <a href="<?php echo $subitem['url']; ?>" class="submenu-link">
-                                            <i class="fa <?php echo $subitem['icon']; ?>"></i>
+                                        <a href="<?php echo $subitem['url']; ?>" class="nav-link text-secondary py-1 d-flex align-items-center">
+                                            <i class="fa <?php echo $subitem['icon']; ?> me-2"></i>
                                             <span><?php echo $subitem['title']; ?></span>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
                         <?php else: ?>
-                            <a href="<?php echo $item['url']; ?>" class="nav-link <?php echo ($current_page == basename($item['url'])) ? 'active' : ''; ?>">
-                                <i class="fa <?php echo $item['icon']; ?>"></i>
-                                <span class="nav-text"><?php echo $item['title']; ?></span>
+                            <a href="<?php echo $item['url']; ?>" class="nav-link d-flex align-items-center <?php echo ($current_page == basename($item['url'])) ? 'active bg-primary text-white' : 'text-secondary'; ?>">
+                                <i class="fa <?php echo $item['icon']; ?> me-2"></i>
+                                <span><?php echo $item['title']; ?></span>
                             </a>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
             </ul>
         </nav>
-        
         <!-- System Status -->
-        <div class="sidebar-footer">
+        <div class="sidebar-footer p-3 border-top mt-auto">
             <div class="system-status">
-                <small>System Status</small>
-                <div class="status-indicators">
+                <small class="text-muted text-uppercase">System Status</small>
+                <div class="d-flex gap-2 mt-2">
                     <span class="status-dot online" title="System Online"></span>
                     <span class="status-dot <?php echo ($system_health['database'] == 'healthy') ? 'online' : 'offline'; ?>" title="Database"></span>
                     <span class="status-dot <?php echo ($system_health['disk_usage'] < 90) ? 'online' : 'warning'; ?>" title="Disk Space"></span>
@@ -305,349 +302,70 @@ $menu_items = getMenuItems($user_role);
         </div>
     </div>
 </aside>
+<!-- Modern Sidebar End -->
 
 <style>
-/* Sidebar Styles */
+/* Modern Sidebar Styles */
 .main-sidebar {
-    position: fixed;
-    top: 70px;
-    left: 0;
-    width: 280px;
-    height: calc(100vh - 70px);
-    background: #fff;
-    border-right: 1px solid #e9ecef;
-    z-index: 1020;
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.dark-mode .main-sidebar {
-    background: #1a1a1a;
-    border-right-color: #333;
-}
-
-.sidebar-collapsed .main-sidebar {
-    width: 70px;
-}
-
-.sidebar-wrapper {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.sidebar-user {
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.dark-mode .sidebar-user {
-    border-bottom-color: #333;
-}
-
-.user-avatar img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--primary-color);
-}
-
-.user-info h6 {
-    margin: 0;
-    font-weight: 600;
-    color: #333;
-}
-
-.dark-mode .user-info h6 {
-    color: #fff;
-}
-
-.user-info small {
-    color: #666;
-    font-size: 12px;
-}
-
-.dark-mode .user-info small {
-    color: #ccc;
-}
-
-.sidebar-nav {
-    flex: 1;
-    padding: 10px 0;
-}
-
-.nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.nav-item {
-    margin: 2px 0;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: #666;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border-radius: 0 25px 25px 0;
-    margin-right: 20px;
-    position: relative;
-}
-
-.nav-link:hover {
-    background: #f8f9fa;
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.nav-link.active {
-    background: linear-gradient(135deg, var(--primary-color), #0056b3);
-    color: white;
-}
-
-.dark-mode .nav-link {
-    color: #ccc;
-}
-
-.dark-mode .nav-link:hover {
-    background: #333;
-    color: var(--primary-color);
-}
-
-.nav-link i {
-    width: 20px;
-    text-align: center;
-    margin-right: 12px;
-    font-size: 16px;
-}
-
-.nav-text {
-    flex: 1;
-    font-weight: 500;
-}
-
-.submenu-arrow {
-    transition: transform 0.3s ease;
-    margin-left: auto;
-    margin-right: 0 !important;
-}
-
-.has-submenu.open .submenu-arrow {
-    transform: rotate(180deg);
-}
-
-.submenu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    background: #f8f9fa;
-    margin-right: 20px;
-    border-radius: 0 15px 15px 0;
-}
-
-.dark-mode .submenu {
-    background: #2a2a2a;
-}
-
-.has-submenu.open .submenu {
-    max-height: 500px;
-}
-
-.submenu-link {
-    display: flex;
-    align-items: center;
-    padding: 10px 20px 10px 50px;
-    color: #666;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 14px;
-}
-
-.submenu-link:hover {
-    background: #e9ecef;
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.dark-mode .submenu-link {
-    color: #ccc;
-}
-
-.dark-mode .submenu-link:hover {
-    background: #333;
-}
-
-.submenu-link i {
-    width: 16px;
-    margin-right: 10px;
-    font-size: 14px;
-}
-
-.sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid #e9ecef;
-}
-
-.dark-mode .sidebar-footer {
-    border-top-color: #333;
-}
-
-.system-status small {
-    display: block;
-    color: #666;
-    margin-bottom: 10px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.dark-mode .system-status small {
-    color: #ccc;
-}
-
-.status-indicators {
-    display: flex;
-    gap: 8px;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ccc;
-}
-
-.status-dot.online {
-    background: #28a745;
-}
-
-.status-dot.warning {
-    background: #ffc107;
-}
-
-.status-dot.offline {
-    background: #dc3545;
-}
-
-/* Collapsed sidebar styles */
-.sidebar-collapsed .user-info,
-.sidebar-collapsed .nav-text,
-.sidebar-collapsed .submenu-arrow,
-.sidebar-collapsed .system-status small {
-    display: none;
-}
-
-.sidebar-collapsed .nav-link {
-    justify-content: center;
-    margin-right: 0;
-    border-radius: 0;
-}
-
-.sidebar-collapsed .nav-link i {
-    margin-right: 0;
-}
-
-.sidebar-collapsed .submenu {
-    display: none;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .main-sidebar {
-        transform: translateX(-100%);
-    }
-    
-    .sidebar-open .main-sidebar {
-        transform: translateX(0);
-    }
-    
-    .main-content {
-        margin-left: 0 !important;
-    }
-}
-
-/* Overlay for mobile */
-.sidebar-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1019;
-    display: none;
+    width: 250px;
+    height: 100vh;
+    background: #fff;
+    z-index: 1020;
+    transition: all 0.3s;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
 }
-
-@media (max-width: 768px) {
-    .sidebar-open .sidebar-overlay {
-        display: block;
-    }
+.sidebar-user .user-avatar img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+}
+.sidebar-user .user-info .fw-bold {
+    font-size: 1rem;
+}
+.sidebar-nav .nav-link {
+    border-radius: 6px;
+    margin-bottom: 2px;
+    font-size: 15px;
+    transition: background 0.2s, color 0.2s;
+}
+.sidebar-nav .nav-link.active, .sidebar-nav .nav-link:hover {
+    background: #0d6efd;
+    color: #fff !important;
+}
+.sidebar-nav .nav-link i {
+    font-size: 1.1rem;
+}
+.has-submenu > .nav-link {
+    cursor: pointer;
+}
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #ccc;
+}
+.status-dot.online { background: #28a745; }
+.status-dot.warning { background: #ffc107; }
+.status-dot.offline { background: #dc3545; }
+@media (max-width: 991.98px) {
+    .main-sidebar { left: -250px; }
+    body.sidebar-open .main-sidebar { left: 0; }
 }
 </style>
-
 <script>
-// Sidebar functionality
+// Bootstrap 5 collapse for submenu
+// Sidebar toggle for mobile
+// Add your sidebar toggle button in header with id="sidebarToggle"
 document.addEventListener('DOMContentLoaded', function() {
-    // Toggle sidebar
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        if (window.innerWidth <= 768) {
+    var sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
             document.body.classList.toggle('sidebar-open');
-        } else {
-            document.body.classList.toggle('sidebar-collapsed');
-        }
-    });
-    
-    // Submenu toggle
-    document.querySelectorAll('[data-toggle="submenu"]').forEach(function(element) {
-        element.addEventListener('click', function(e) {
-            e.preventDefault();
-            const parent = this.closest('.nav-item');
-            parent.classList.toggle('open');
-            
-            // Close other submenus
-            document.querySelectorAll('.nav-item.has-submenu').forEach(function(item) {
-                if (item !== parent) {
-                    item.classList.remove('open');
-                }
-            });
-        });
-    });
-    
-    // Close sidebar on overlay click (mobile)
-    if (document.querySelector('.sidebar-overlay')) {
-        document.querySelector('.sidebar-overlay').addEventListener('click', function() {
-            document.body.classList.remove('sidebar-open');
         });
     }
-    
-    // Auto-open submenu if current page is in submenu
-    const currentUrl = window.location.pathname;
-    document.querySelectorAll('.submenu-link').forEach(function(link) {
-        if (link.getAttribute('href') && currentUrl.includes(link.getAttribute('href'))) {
-            const submenu = link.closest('.nav-item');
-            if (submenu) {
-                submenu.classList.add('open');
-            }
-        }
-    });
 });
-
-// Create overlay for mobile
-if (window.innerWidth <= 768) {
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    document.body.appendChild(overlay);
-}
 </script>
