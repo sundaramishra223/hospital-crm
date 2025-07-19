@@ -152,12 +152,9 @@ function deleteDoctor($doctor_id) {
         $doctor = $stmt->fetch();
         
         if ($doctor) {
-            // Soft delete - mark as deleted instead of actually deleting
-            $stmt = $pdo->prepare("UPDATE users SET status = 'deleted' WHERE id = ?");
-            $stmt->execute([$doctor['user_id']]);
-            
-            $stmt = $pdo->prepare("UPDATE doctors SET status = 'deleted' WHERE id = ?");
-            $stmt->execute([$doctor_id]);
+            // Universal soft delete function
+            softDeleteRecord('users', $doctor['user_id']);
+            softDeleteRecord('doctors', $doctor_id);
         }
         
         $pdo->commit();
@@ -473,6 +470,92 @@ function getActivityIcon($action) {
     ];
     
     return $icons[$action] ?? 'info';
+}
+
+/**
+ * Universal Soft Delete Function
+ * Marks a record as deleted instead of actually deleting it
+ */
+function softDeleteRecord($table, $id, $hospital_id = null) {
+    global $pdo;
+    
+    try {
+        $sql = "UPDATE $table SET status = 'deleted', deleted_at = NOW() WHERE id = ?";
+        $params = [$id];
+        
+        // Add hospital_id filter if provided
+        if ($hospital_id) {
+            $sql .= " AND hospital_id = ?";
+            $params[] = $hospital_id;
+        }
+        
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute($params);
+        
+        // Log the soft delete action
+        if ($result) {
+            addActivityLog($_SESSION['user_id'] ?? 1, 'soft_delete', "Soft deleted record from $table with ID: $id");
+        }
+        
+        return $result;
+    } catch (Exception $e) {
+        error_log("Soft delete error: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Universal Soft Restore Function
+ * Restores a soft-deleted record
+ */
+function softRestoreRecord($table, $id, $hospital_id = null) {
+    global $pdo;
+    
+    try {
+        $sql = "UPDATE $table SET status = 'active', deleted_at = NULL WHERE id = ?";
+        $params = [$id];
+        
+        // Add hospital_id filter if provided
+        if ($hospital_id) {
+            $sql .= " AND hospital_id = ?";
+            $params[] = $hospital_id;
+        }
+        
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute($params);
+        
+        // Log the restore action
+        if ($result) {
+            addActivityLog($_SESSION['user_id'] ?? 1, 'soft_restore', "Restored record from $table with ID: $id");
+        }
+        
+        return $result;
+    } catch (Exception $e) {
+        error_log("Soft restore error: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get records excluding soft-deleted ones
+ */
+function getActiveRecords($table, $where = [], $order_by = 'id DESC') {
+    global $pdo;
+    
+    $sql = "SELECT * FROM $table WHERE status != 'deleted'";
+    $params = [];
+    
+    // Add additional where conditions
+    foreach ($where as $key => $value) {
+        $sql .= " AND $key = ?";
+        $params[] = $value;
+    }
+    
+    $sql .= " ORDER BY $order_by";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll();
 }
 
 // Chart data functions

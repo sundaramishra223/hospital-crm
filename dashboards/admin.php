@@ -21,12 +21,23 @@ $video_consultations = getVideoConsultations();
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <h1>Admin Dashboard</h1>
                 <p>Welcome back, <?php echo $_SESSION['user_name']; ?>!</p>
             </div>
-            <div class="col-md-4 text-right">
+            <div class="col-md-6 text-right">
                 <div class="header-actions">
+                    <!-- Hospital Switcher -->
+                    <div class="hospital-switcher d-inline-block me-3">
+                        <select class="form-select form-select-sm" id="hospitalSwitcher" onchange="switchHospital(this.value)">
+                            <option value="">Select Hospital</option>
+                            <?php foreach ($hospitals as $hospital): ?>
+                            <option value="<?php echo $hospital['id']; ?>" <?php echo ($_SESSION['hospital_id'] == $hospital['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($hospital['name']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <button class="btn btn-primary" data-toggle="modal" data-target="#quickAddModal">
                         <i class="fa fa-plus"></i> Quick Add
                     </button>
@@ -384,5 +395,34 @@ function initializeStaffChart() {
             maintainAspectRatio: false
         }
     });
+}
+
+// Hospital Switcher Function
+function switchHospital(hospitalId) {
+    if (hospitalId) {
+        // Send AJAX request to switch hospital
+        fetch('api/switch_hospital.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                hospital_id: hospitalId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload page to reflect new hospital context
+                location.reload();
+            } else {
+                alert('Failed to switch hospital: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error switching hospital');
+        });
+    }
 }
 </script>
