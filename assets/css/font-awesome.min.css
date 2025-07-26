@@ -1,0 +1,86 @@
+/* Font Awesome Icons - Essential icons for hospital CRM */
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('data:application/font-woff;charset=utf-8;base64,') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.fa {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Icon placeholders - we'll use Unicode characters as fallbacks */
+.fa-user:before { content: "👤"; }
+.fa-users:before { content: "👥"; }
+.fa-hospital:before { content: "🏥"; }
+.fa-stethoscope:before { content: "🩺"; }
+.fa-pills:before { content: "💊"; }
+.fa-bed:before { content: "🛏️"; }
+.fa-ambulance:before { content: "🚑"; }
+.fa-calendar:before { content: "📅"; }
+.fa-money:before { content: "💰"; }
+.fa-file:before { content: "📄"; }
+.fa-chart:before { content: "📊"; }
+.fa-cog:before { content: "⚙️"; }
+.fa-dashboard:before { content: "📊"; }
+.fa-plus:before { content: "➕"; }
+.fa-edit:before { content: "✏️"; }
+.fa-trash:before { content: "🗑️"; }
+.fa-eye:before { content: "👁️"; }
+.fa-search:before { content: "🔍"; }
+.fa-save:before { content: "💾"; }
+.fa-print:before { content: "🖨️"; }
+.fa-download:before { content: "⬇️"; }
+.fa-upload:before { content: "⬆️"; }
+.fa-home:before { content: "🏠"; }
+.fa-phone:before { content: "📞"; }
+.fa-email:before { content: "✉️"; }
+.fa-lock:before { content: "🔒"; }
+.fa-unlock:before { content: "🔓"; }
+.fa-check:before { content: "✅"; }
+.fa-times:before { content: "❌"; }
+.fa-warning:before { content: "⚠️"; }
+.fa-info:before { content: "ℹ️"; }
+.fa-heart:before { content: "❤️"; }
+.fa-star:before { content: "⭐"; }
+.fa-clock:before { content: "🕐"; }
+.fa-calendar-check:before { content: "📅"; }
+.fa-id-card:before { content: "🆔"; }
+.fa-microscope:before { content: "🔬"; }
+.fa-flask:before { content: "🧪"; }
+.fa-syringe:before { content: "💉"; }
+.fa-thermometer:before { content: "🌡️"; }
+.fa-heartbeat:before { content: "💗"; }
+.fa-clipboard:before { content: "📋"; }
+.fa-notes:before { content: "📝"; }
+.fa-report:before { content: "📊"; }
+.fa-archive:before { content: "📦"; }
+.fa-history:before { content: "🕰️"; }
+.fa-bell:before { content: "🔔"; }
+.fa-exclamation:before { content: "❗"; }
+.fa-question:before { content: "❓"; }
+.fa-logout:before { content: "🚪"; }
+.fa-login:before { content: "🔑"; }
+.fa-medical:before { content: "⚕️"; }
+.fa-tablet:before { content: "💊"; }
+.fa-injection:before { content: "💉"; }
+.fa-band-aid:before { content: "🩹"; }
+
+/* Icon sizes */
+.fa-lg { font-size: 1.33333em; }
+.fa-2x { font-size: 2em; }
+.fa-3x { font-size: 3em; }
+
+/* Icon colors */
+.text-primary { color: #007bff; }
+.text-success { color: #28a745; }
+.text-danger { color: #dc3545; }
+.text-warning { color: #ffc107; }
+.text-info { color: #17a2b8; }
+.text-muted { color: #6c757d; }
