@@ -1,0 +1,5 @@
+# Create a simple SVG logo for the hospital
+<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40" cy="40" r="35" fill="#007bff" stroke="#0056b3" stroke-width="2"/>
+  <path d="M25 40 L35 40 L35 30 L45 30 L45 40 L55 40 L55 50 L45 50 L45 60 L35 60 L35 50 L25 50 Z" fill="white"/>
+</svg>

@@ -1,14 +1,15 @@
 <?php
-// Database configuration
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'hospital_crm');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+// Database configuration - Using SQLite for easier setup
+define('DB_PATH', __DIR__ . '/../hospital_crm.db');
 
 try {
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS);
+    $pdo = new PDO("sqlite:" . DB_PATH);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    
+    // Enable foreign key constraints in SQLite
+    $pdo->exec("PRAGMA foreign_keys = ON");
+    
 } catch(PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
